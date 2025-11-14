@@ -9,7 +9,7 @@ const SpellDetail = () => {
   const { id } = useParams();
 
   useEffect(() => {
-    fetch(`/api/spells/${id}`)
+    fetch(`${process.env.REACT_APP_API_URL}/spells/${id}`)
       .then(res => res.json())
       .then(data => {
         setSpell(data);

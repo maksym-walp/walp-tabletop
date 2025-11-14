@@ -107,7 +107,7 @@ const SpellForm = ({ onSpellAdded }) => {
       }
     };
 
-    fetch('/api/spells', {
+    fetch(`${process.env.REACT_APP_API_URL}/spells`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(spellToSubmit),

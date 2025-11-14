@@ -12,7 +12,7 @@ function App() {
   const [filteredSpells, setFilteredSpells] = useState([]);
 
   useEffect(() => {
-    fetch('/api/spells')
+    fetch(`${process.env.REACT_APP_API_URL}/spells`)
       .then(res => res.json())
       .then(data => {
         setSpells(data);
