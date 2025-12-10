@@ -1,2 +1,24 @@
 .env
 node_modules
+
+# Залежності
+node_modules/
+
+# Збірки
+build/
+dist/
+
+# Середовище (секрети) - НІКОЛИ не комітити в Git!
+.env
+.env.local
+.env.production
+
+# Логи та системні файли
+*.log
+.DS_Store
+
+# Папки сертифікатів (щоб не вкрали ключі)
+certbot/
+
+# Серверні файли
+docker-compose.prod.yml
