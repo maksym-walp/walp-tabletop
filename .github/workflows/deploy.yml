@@ -1,0 +1,39 @@
+name: Deploy to VPS
+
+# Коли запускати цей процес?
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        # Використовуємо готовий екшен від спільноти для SSH з'єднання
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          # Що саме зробити на сервері:
+          script: |
+            # 1. Переходимо в папку (якщо помилка - зупиняємось)
+            cd ~/SpellBook || exit 1
+            
+            # 2. Оновлюємо код з репозиторію
+            # (Ми використовуємо git reset щоб точно співпасти з GitHub і уникнути конфліктів)
+            git fetch --all
+            git reset --hard origin/main
+            
+            # 3. Перезбираємо контейнери
+            # Використовуємо ваш PROD файл конфігурації
+            # sudo не потрібен, якщо користувач у групі docker
+            docker compose -f docker-compose.prod.yml up -d --build
+            
+            # 4. Очищаємо старі образи, щоб не забивати диск (опціонально)
+            docker image prune -f
