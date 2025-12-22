@@ -23,7 +23,13 @@ const pool = mysql.createPool({
 
 const processSpellRow = (row) => {
   const traditions = row.traditions ? row.traditions.split(',') : [];
-  const spell = { ...row, traditions };
+  const spell = { 
+    ...row, 
+    traditions,
+    // Додаємо нові поля в camelCase
+    narrativeDescription: row.narrative_description, 
+    mechanicalDescription: row.mechanical_description
+  };
 
   spell.components = row.components || []; 
   
@@ -32,6 +38,8 @@ const processSpellRow = (row) => {
   // очікує `higherLevels`.
   spell.higherLevels = row.higher_levels || {}; // Призначаємо camelCase
   delete spell.higher_levels; // Видаляємо старе snake_case поле
+  delete spell.narrative_description;
+  delete spell.mechanical_description;
 
   // 5. Обробка duration (залишається без змін)
   spell.duration = {
