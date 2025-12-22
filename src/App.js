@@ -10,9 +10,10 @@ import './App.css';
 function App() {
   const [spells, setSpells] = useState([]);
   const [filteredSpells, setFilteredSpells] = useState([]);
+  const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/spells`)
+    fetch(`${API_BASE_URL}/spells`)
       .then(res => res.json())
       .then(data => {
         setSpells(data);

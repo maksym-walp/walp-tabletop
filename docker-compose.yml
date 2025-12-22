@@ -3,6 +3,7 @@ services:
   db:
     image: mysql:8.0
     # Завжди задаємо ім'я контейнера, щоб легше було звертатися
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password
     container_name: spellbook-db
     restart: always
     environment:
