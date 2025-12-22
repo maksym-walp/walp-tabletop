@@ -7,9 +7,10 @@ const SpellDetail = () => {
   const [spell, setSpell] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState(null);
   const { id } = useParams();
+  const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/spells/${id}`)
+    fetch(`${API_BASE_URL}/spells/${id}`)
       .then(res => res.json())
       .then(data => {
         setSpell(data);

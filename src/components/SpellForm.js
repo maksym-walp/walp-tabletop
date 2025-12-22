@@ -5,6 +5,7 @@ import spellConfig from '../config/spellConfig.json';
 
 const SpellForm = ({ onSpellAdded }) => {
   const navigate = useNavigate();
+  const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
   
   const [spell, setSpell] = useState({
     name: '',
@@ -107,7 +108,7 @@ const SpellForm = ({ onSpellAdded }) => {
       }
     };
 
-    fetch(`${process.env.REACT_APP_API_URL}/spells`, {
+    fetch(`${API_BASE_URL}/spells`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(spellToSubmit),
