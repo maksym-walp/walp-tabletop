@@ -17,7 +17,7 @@ COPY . .
 # Ми вкажемо, що API буде доступне за тим же доменом через /api (налаштуємо це в Nginx)
 # АБО ми можемо передати це через docker-compose. 
 # Для початку давайте використаємо універсальний шлях:
-ENV REACT_APP_API_URL=http://localhost:5000/api
+# ENV REACT_APP_API_URL=http://localhost:5000/api
 
 # Збираємо проєкт у папку /app/build
 RUN npm run build
