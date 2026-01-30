@@ -1,0 +1,52 @@
+.traditions-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.traditions-container h1 {
+  font-family: 'Cinzel', serif;
+  color: var(--accent-color);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.traditions-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.tradition-card {
+  background: var(--parchment-color);
+  border: 2px solid var(--gold-color);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 15px var(--shadow-color);
+}
+
+.tradition-card h2 {
+  font-family: 'Cinzel', serif;
+  color: var(--ink-color);
+  border-bottom: 1px solid var(--gold-color);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.tradition-card p {
+  line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+  .traditions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .traditions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

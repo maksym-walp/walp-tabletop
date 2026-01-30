@@ -1,58 +1,97 @@
 services:
-  # 1. База даних
+  # MySQL Database
   db:
     image: mysql:8.0
-    # Завжди задаємо ім'я контейнера, щоб легше було звертатися
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password
-    container_name: spellbook-db
+    container_name: walpapur-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
-      - "3306:3306" # Доступ до БД з вашого комп'ютера
+      - "3306:3306"
     volumes:
-      - db_data:/var/lib/mysql # Зберігаємо дані, щоб не зникали
+      - db_data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - spellbook-network
+      - walpapur-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # 2. Бекенд (API)
-  api:
-    build: ./server
-    container_name: spellbook-api
+  # Auth Service
+  auth-service:
+    build: ./services/auth-service
+    container_name: walpapur-auth
     restart: always
-    ports:
-      - "5000:5000"
-    env_file:
-      - .env
     environment:
-      # Магія Docker: хост БД тепер називається просто 'db' (як назва сервісу вище)
-      - DB_HOST=db 
+      - PORT=3001
+      - AUTH_DB_HOST=db
+      - AUTH_DB_PORT=3306
+      - AUTH_DB_USER=auth_user
+      - AUTH_DB_PASSWORD=auth_password
+      - AUTH_DB_NAME=auth_db
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
-      - spellbook-network
+      - walpapur-network
 
-  # 3. Фронтенд
-  frontend:
-    build: .
-    container_name: spellbook-web
+  # Spell Service
+  spell-service:
+    build: ./services/spell-api
+    container_name: walpapur-spells
+    restart: always
+    environment:
+      - PORT=3002
+      - SPELLS_DB_HOST=db
+      - SPELLS_DB_PORT=3306
+      - SPELLS_DB_USER=spells_user
+      - SPELLS_DB_PASSWORD=spells_password
+      - SPELLS_DB_NAME=spells_db
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - walpapur-network
+
+  # API Gateway
+  gateway:
+    build: ./gateway
+    container_name: walpapur-gateway
     restart: always
     ports:
-      - "3000:80" # Відкриваємо на порту 3000
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - JWT_SECRET=${JWT_SECRET}
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SPELL_SERVICE_URL=http://spell-service:3002
     depends_on:
-      - api
+      - auth-service
+      - spell-service
     networks:
-      - spellbook-network
+      - walpapur-network
 
-# Створюємо спільну мережу
+  # Frontend
+  web:
+    build: ./web
+    container_name: walpapur-web
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3000
+    depends_on:
+      - gateway
+    networks:
+      - walpapur-network
+
 networks:
-  spellbook-network:
+  walpapur-network:
     driver: bridge
 
-# Створюємо місце для зберігання даних БД
 volumes:
   db_data:

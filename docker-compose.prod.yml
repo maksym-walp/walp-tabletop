@@ -2,21 +2,30 @@ services:
   # 1. База даних
   db:
     image: mysql:8.0
-    # Завжди задаємо ім'я контейнера, щоб легше було звертатися
     container_name: spellbook-db
     restart: always
+    # !!! ВАЖЛИВО: Додано command для підтримки UTF-8 та сумісності
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
+      # Зауваження: MYSQL_DATABASE створить тільки одну базу.
+      # Оскільки у нас є init.sql, який створює auth_db і spells_db,
+      # ця змінна тут скоріше як "заглушка", але хай буде.
+      MYSQL_DATABASE: ${DB_DATABASE} 
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "3306:3306" # Доступ до БД з вашого комп'ютера
+      - "3306:3306" # Можна залишити, якщо ти хочеш підключатися до БД з комп'ютера (через DBeaver/Workbench)
     volumes:
-      - db_data:/var/lib/mysql # Зберігаємо дані, щоб не зникали
+      - db_data:/var/lib/mysql 
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - spellbook-network
+    # Порада: Healthcheck допомагає іншим контейнерам знати, коли БД реально готова приймати з'єднання
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   # 2. Бекенд (API)
   api:
@@ -26,10 +35,14 @@ services:
     env_file:
       - .env
     environment:
-      # Магія Docker: хост БД тепер називається просто 'db' (як назва сервісу вище)
       - DB_HOST=db 
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=spells_db
+      - JWT_SECRET=${JWT_SECRET} 
     depends_on:
-      - db
+      db:
+        condition: service_healthy # Чекаємо, поки healthcheck бази скаже "OK"
     networks:
       - spellbook-network
 
@@ -42,7 +55,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro # Це змусить Nginx бачити ваш файл
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     depends_on:
@@ -56,12 +69,10 @@ services:
         - ./certbot/conf:/etc/letsencrypt
         - ./certbot/www:/var/www/certbot
 
-
-# Створюємо спільну мережу
 networks:
   spellbook-network:
     driver: bridge
 
-# Створюємо місце для зберігання даних БД
 volumes:
   db_data:
+  
