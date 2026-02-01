@@ -1,0 +1,259 @@
+name: CI - Selective Build
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # Визначаємо які сервіси змінилися
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      auth: ${{ steps.filter.outputs.auth }}
+      spell: ${{ steps.filter.outputs.spell }}
+      gateway: ${{ steps.filter.outputs.gateway }}
+      web: ${{ steps.filter.outputs.web }}
+      db: ${{ steps.filter.outputs.db }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            auth:
+              - 'services/auth-service/**'
+              - 'package.json'
+            spell:
+              - 'services/spell-service/**'
+              - 'package.json'
+            gateway:
+              - 'gateway/**'
+              - 'package.json'
+            web:
+              - 'web/**'
+              - 'package.json'
+            db:
+              - 'infrastructure/db/**'
+
+  # Тести та збірка Auth Service
+  build-auth:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.auth == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'services/auth-service/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: services/auth-service
+        run: npm ci
+
+      - name: Run linter
+        working-directory: services/auth-service
+        run: npm run lint --if-present
+
+      - name: Run tests
+        working-directory: services/auth-service
+        run: npm test --if-present
+
+      - name: Build Docker image
+        run: docker build -t auth-service:${{ github.sha }} ./services/auth-service
+
+      - name: Run security audit
+        working-directory: services/auth-service
+        run: npm audit --audit-level=high
+
+  # Тести та збірка Spell Service
+  build-spell:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.spell == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'services/spell-service/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: services/spell-service
+        run: npm ci
+
+      - name: Run linter
+        working-directory: services/spell-service
+        run: npm run lint --if-present
+
+      - name: Run tests
+        working-directory: services/spell-service
+        run: npm test --if-present
+
+      - name: Build Docker image
+        run: docker build -t spell-service:${{ github.sha }} ./services/spell-service
+
+      - name: Run security audit
+        working-directory: services/spell-service
+        run: npm audit --audit-level=high
+
+  # Тести та збірка Gateway
+  build-gateway:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.gateway == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'gateway/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: gateway
+        run: npm ci
+
+      - name: Run linter
+        working-directory: gateway
+        run: npm run lint --if-present
+
+      - name: Run tests
+        working-directory: gateway
+        run: npm test --if-present
+
+      - name: Build Docker image
+        run: docker build -t gateway:${{ github.sha }} ./gateway
+
+      - name: Run security audit
+        working-directory: gateway
+        run: npm audit --audit-level=high
+
+  # Тести та збірка Web (Frontend)
+  build-web:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'web/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Run linter
+        working-directory: web
+        run: npm run lint --if-present
+
+      - name: Run tests
+        working-directory: web
+        run: npm test --if-present
+
+      - name: Build production
+        working-directory: web
+        run: npm run build
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL || 'http://localhost:3000' }}
+
+      - name: Build Docker image
+        run: docker build -t web:${{ github.sha }} ./web
+
+      - name: Run security audit
+        working-directory: web
+        run: npm audit --audit-level=high
+
+  # Integration tests (якщо будь-який сервіс змінився)
+  integration-tests:
+    needs: [detect-changes, build-auth, build-spell, build-gateway, build-web]
+    if: |
+      always() &&
+      (needs.detect-changes.outputs.auth == 'true' ||
+       needs.detect-changes.outputs.spell == 'true' ||
+       needs.detect-changes.outputs.gateway == 'true' ||
+       needs.detect-changes.outputs.web == 'true')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          DB_ROOT_PASSWORD=test_password
+          JWT_SECRET=test_jwt_secret_key_for_ci
+          EOF
+
+      - name: Start services
+        run: docker-compose up -d
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for services to start..."
+          sleep 30
+
+          # Перевірка health endpoints
+          curl --retry 10 --retry-delay 5 --retry-connrefused http://localhost:3000/health || true
+
+      - name: Run integration tests
+        run: |
+          # Тут можна додати integration тести
+          echo "Integration tests would run here"
+          # npm run test:integration
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker-compose logs
+
+      - name: Cleanup
+        if: always()
+        run: docker-compose down -v
+
+  # Summary job - показує результат
+  ci-summary:
+    needs: [detect-changes, build-auth, build-spell, build-gateway, build-web, integration-tests]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check build results
+        run: |
+          echo "## CI Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Changed services:" >> $GITHUB_STEP_SUMMARY
+          echo "- Auth Service: ${{ needs.detect-changes.outputs.auth }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Spell Service: ${{ needs.detect-changes.outputs.spell }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Gateway: ${{ needs.detect-changes.outputs.gateway }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Web: ${{ needs.detect-changes.outputs.web }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Database: ${{ needs.detect-changes.outputs.db }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build status:" >> $GITHUB_STEP_SUMMARY
+          echo "- Auth: ${{ needs.build-auth.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Spell: ${{ needs.build-spell.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Gateway: ${{ needs.build-gateway.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Web: ${{ needs.build-web.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Integration: ${{ needs.integration-tests.result }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail if any build failed
+        if: |
+          needs.build-auth.result == 'failure' ||
+          needs.build-spell.result == 'failure' ||
+          needs.build-gateway.result == 'failure' ||
+          needs.build-web.result == 'failure' ||
+          needs.integration-tests.result == 'failure'
+        run: exit 1
