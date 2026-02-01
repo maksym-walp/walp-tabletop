@@ -1,0 +1,38 @@
+# Автоматичне додавання labels до PR на основі змінених файлів
+
+'service: auth':
+  - services/auth-service/**/*
+
+'service: spell':
+  - services/spell-api/**/*
+
+'service: gateway':
+  - gateway/**/*
+
+'app: web':
+  - web/**/*
+
+'infrastructure':
+  - docker-compose*.yml
+  - .github/workflows/**/*
+  - infrastructure/**/*
+  - db/**/*
+
+'documentation':
+  - '**/*.md'
+  - docs/**/*
+
+'dependencies':
+  - '**/package.json'
+  - '**/package-lock.json'
+
+'security':
+  - '**/.env.example'
+  - '**/secrets/**/*
+
+'database':
+  - db/**/*
+  - '**/migrations/**/*'
+
+'ci/cd':
+  - .github/workflows/**/*

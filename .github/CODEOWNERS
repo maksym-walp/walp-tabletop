@@ -1,0 +1,38 @@
+# CODEOWNERS - Визначає хто відповідає за який код
+# Документація: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Глобальний owner для всього репозиторію
+* @maksym-walp
+
+# Мікросервіси
+/services/auth-service/ @maksym-walp
+/services/spell-api/ @maksym-walp
+/gateway/ @maksym-walp
+
+# Frontend
+/web/ @maksym-walp
+
+# Infrastructure & DevOps
+/infrastructure/ @maksym-walp
+/docker-compose*.yml @maksym-walp
+/.github/workflows/ @maksym-walp
+
+# Database
+/db/ @maksym-walp
+
+# Documentation - вимагає review для важливих docs
+/README.md @maksym-walp
+/MICROSERVICES_SETUP.md @maksym-walp
+/MONOREPO_BEST_PRACTICES.md @maksym-walp
+
+# CI/CD - критичні файли
+/.github/workflows/deploy.yml @maksym-walp
+/.github/workflows/ci.yml @maksym-walp
+
+# Security sensitive files
+/.env.example @maksym-walp
+/.gitignore @maksym-walp
+
+# Package management
+package.json @maksym-walp
+package-lock.json @maksym-walp

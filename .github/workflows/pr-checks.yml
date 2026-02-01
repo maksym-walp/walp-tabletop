@@ -1,0 +1,191 @@
+name: PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  # Перевірка PR title на conventional commits
+  check-pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # feat, fix, docs, style, refactor, perf, test, build, ci, chore
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+          scopes: |
+            auth
+            spell
+            gateway
+            web
+            db
+            infra
+          requireScope: true
+
+  # Перевірка розміру PR
+  check-pr-size:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR size
+        run: |
+          # Підрахунок змінених рядків
+          CHANGED_LINES=$(git diff --stat origin/${{ github.base_ref }}...HEAD | tail -1 | awk '{print $4+$6}')
+          echo "Changed lines: $CHANGED_LINES"
+
+          # Попередження якщо PR занадто великий
+          if [ "$CHANGED_LINES" -gt 500 ]; then
+            echo "::warning::PR is large ($CHANGED_LINES lines). Consider splitting into smaller PRs."
+          fi
+
+  # Перевірка чи оновлена документація
+  check-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if docs are updated
+        run: |
+          # Перевірка чи є зміни в src файлах
+          SRC_CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(js|ts|jsx|tsx)$' || true)
+
+          # Перевірка чи є зміни в документації
+          DOCS_CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '(README\.md|docs/|\.md$)' || true)
+
+          # Якщо змінився код але не документація - попередження
+          if [ -n "$SRC_CHANGED" ] && [ -z "$DOCS_CHANGED" ]; then
+            echo "::warning::Code changed but documentation not updated. Consider updating README or docs."
+          fi
+
+  # Перевірка dependency security
+  check-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # Перевірка code style
+  check-code-style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # Перевірка всіх package.json файлів
+      - name: Check for prettier/eslint configs
+        run: |
+          echo "Checking code style configuration..."
+          # Тут можна додати перевірку prettier/eslint
+
+  # Labeler - автоматично додає labels до PR
+  auto-label:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Коментар з корисною інформацією
+  pr-comment:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Comment PR with info
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            // Визначення які сервіси змінилися
+            const changedServices = new Set();
+            files.forEach(file => {
+              if (file.filename.startsWith('services/auth-service/')) changedServices.add('Auth Service');
+              if (file.filename.startsWith('services/spell-api/')) changedServices.add('Spell Service');
+              if (file.filename.startsWith('gateway/')) changedServices.add('Gateway');
+              if (file.filename.startsWith('web/')) changedServices.add('Web');
+              if (file.filename.startsWith('db/')) changedServices.add('Database');
+            });
+
+            // Підрахунок статистики
+            const additions = files.reduce((sum, file) => sum + file.additions, 0);
+            const deletions = files.reduce((sum, file) => sum + file.deletions, 0);
+
+            const comment = `## 📊 PR Analysis
+
+### Changed Services
+${changedServices.size > 0 ?
+  Array.from(changedServices).map(s => `- ${s}`).join('\n') :
+  '_No service changes detected_'}
+
+### Code Changes
+- **Files changed**: ${files.length}
+- **Lines added**: +${additions}
+- **Lines removed**: -${deletions}
+- **Net change**: ${additions - deletions > 0 ? '+' : ''}${additions - deletions}
+
+### Checklist
+- [ ] Tests added/updated
+- [ ] Documentation updated
+- [ ] CHANGELOG updated (if needed)
+- [ ] Environment variables documented (if added)
+
+### Deployment Impact
+${changedServices.size > 0 ?
+  `⚠️ This PR will trigger rebuild of: ${Array.from(changedServices).join(', ')}` :
+  '✅ No service deployments required'}
+
+---
+_Автоматично згенеровано GitHub Actions_`;
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
