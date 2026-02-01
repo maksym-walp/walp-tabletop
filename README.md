@@ -1,70 +1,163 @@
-# Getting Started with Create React App
+# Walpapur Tabletop
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> Система управління заклинаннями, листами персонажів, картками монстрів і тд для настільних рольових ігор
+> Мікросервісна архітектура | Monorepo | Docker
 
-## Available Scripts
+[![CI Status](https://img.shields.io/badge/CI-passing-brightgreen)](.github/workflows/ci.yml)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org/)
+[![Docker](https://img.shields.io/badge/Docker-required-blue)](https://www.docker.com/)
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 📋 Зміст
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- [Про проект](#-про-проект)
+- [Швидкий старт](#-швидкий-старт)
+- [Архітектура](#️-архітектура)
+- [Документація](#-документація)
+- [Розробка](#-розробка)
+- [Deployment](#-deployment)
+- [Команда](#-команда)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 🎯 Про проект
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Walpapur Tabletop** - це веб-застосунок для управління заклинаннями в настільних рольових іграх (TTRPG). Побудований на мікросервісній архітектурі для забезпечення масштабованості та підтримуваності.
 
-### `npm run build`
+### Основні функції
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- 🔐 Аутентифікація та авторизація користувачів
+- 📖 Створення, перегляд та редагування заклинань
+- 🔍 Пошук та фільтрація заклинань
+- 🎨 Організація за традиціями магії
+- 📱 Responsive дизайн
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Технології
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**Backend:** Node.js, Express.js, MySQL, JWT
+**Frontend:** React 19, React Router
+**Infrastructure:** Docker, NGINX, GitHub Actions
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 🚀 Швидкий старт
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Вимоги
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- [Node.js](https://nodejs.org/) >= 18.0.0
+- [Docker](https://www.docker.com/) та Docker Compose
+- [Git](https://git-scm.com/)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Встановлення
 
-## Learn More
+```bash
+# 1. Клонувати репозиторій
+git clone https://github.com/maksym-walp/SpellBook.git
+cd SpellBook
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# 2. Налаштувати environment variables
+cp .env.example .env
+# Відредагуйте .env та встановіть значення
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# 3. Запустити всі сервіси
+npm run dev
+```
 
-### Code Splitting
+### Перевірка
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- **Frontend**: http://localhost
+- **API Gateway**: http://localhost:3000
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🏗️ Архітектура
 
-### Making a Progressive Web App
+```
+Browser → Web (React) → Gateway (NGINX) → Auth / Spell Services → MySQL
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+**Детальна схема**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 📚 Документація
 
-### Deployment
+### Загальна
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- **[Архітектура](docs/ARCHITECTURE.md)** - схема мікросервісів та взаємодії
+- **[Git Workflow](docs/GIT_WORKFLOW.md)** - правила роботи з Git
+- **[Code Style](docs/CODE_STYLE.md)** - стандарти коду
 
-### `npm run build` fails to minify
+### Сервіси
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **[Auth Service](services/auth-service/README.md)** - аутентифікація
+- **[Spell Service](services/spell-service/README.md)** - заклинання
+- **[Gateway](gateway/README.md)** - API Gateway
+- **[Web](web/README.md)** - Frontend
+
+---
+
+## 💻 Розробка
+
+### Структура
+
+```
+SpellBook/
+├── services/          # Backend сервіси
+├── gateway/           # API Gateway
+├── web/               # Frontend
+├── infrastructure/    # Database
+├── scripts/           # Utilities
+└── docs/              # Документація
+```
+
+### Команди
+
+```bash
+npm run dev           # Запустити
+npm test              # Тести
+npm run build         # Build
+npm run db:shell      # MySQL shell
+```
+
+Більше команд: `npm run` (показує всі доступні)
+
+---
+
+## 🚢 Deployment
+
+```bash
+npm run prod:build    # Production build
+```
+
+CI/CD: GitHub Actions ([.github/workflows/](.github/workflows/))
+
+---
+
+## 👥 Команда
+
+**Lead Developer:** Maksym ([@maksym-walp](https://github.com/maksym-walp))
+
+### Для нових розробників
+
+1. Прочитайте [Git Workflow](docs/GIT_WORKFLOW.md)
+2. Ознайомтесь з [Code Style](docs/CODE_STYLE.md)
+3. Вивчіть [Architecture](docs/ARCHITECTURE.md)
+
+```bash
+# Fork → Clone → Branch → Commit → PR
+git checkout -b feature/your-feature
+git commit -m "feat(scope): description"
+git push origin feature/your-feature
+```
+
+---
+
+## 📝 Ліцензія
+
+MIT License
+
+---
+
+**Версія:** 1.0.0 | **Оновлено:** 2026-02-01
