@@ -17,6 +17,7 @@ const pool = mysql.createPool({
   user: process.env.SPELLS_DB_USER,
   password: process.env.SPELLS_DB_PASSWORD,
   database: process.env.SPELLS_DB_NAME || 'spells_db',
+  charset: 'utf8mb4',
 
   waitForConnections: true,
   connectionLimit: 10,
@@ -37,35 +38,46 @@ app.get('/health', (req, res) => {
 
 const processSpellRow = (row) => {
   const traditions = row.traditions ? row.traditions.split(',') : [];
-  const spell = { 
-    ...row, 
+
+  // Парсимо JSON поля якщо вони є рядками
+  let components = row.components || [];
+  if (typeof components === 'string') {
+    try {
+      components = JSON.parse(components);
+    } catch (e) {
+      components = [];
+    }
+  }
+
+  let higherLevels = row.higher_levels || {};
+  if (typeof higherLevels === 'string') {
+    try {
+      higherLevels = JSON.parse(higherLevels);
+    } catch (e) {
+      higherLevels = {};
+    }
+  }
+
+  const spell = {
+    id: row.id,
+    name: row.name,
+    level: row.level,
+    actions: row.actions,
+    range: row.spell_range,
+    concentration: row.concentration,
+    ritual: row.ritual,
     traditions,
-    // Додаємо нові поля в camelCase
-    narrativeDescription: row.narrative_description, 
-    mechanicalDescription: row.mechanical_description
+    components,
+    narrativeDescription: row.narrative_description,
+    mechanicalDescription: row.mechanical_description,
+    hasHigherLevels: Boolean(row.has_higher_levels),
+    higherLevels,
+    duration: {
+      value: row.duration_value,
+      unit: row.duration_unit,
+      customUnit: row.duration_custom_unit
+    }
   };
-
-  spell.components = row.components || []; 
-  
-  // 4. ВИПРАВЛЕННЯ: Призначаємо `higherLevels` (camelCase) з `higher_levels` (snake_case)
-  // У вашій БД колонка називається `higher_levels`, але фронтенд (SpellDetail.js)
-  // очікує `higherLevels`.
-  spell.higherLevels = row.higher_levels || {}; // Призначаємо camelCase
-  delete spell.higher_levels; // Видаляємо старе snake_case поле
-  delete spell.narrative_description;
-  delete spell.mechanical_description;
-
-  // 5. Обробка duration (залишається без змін)
-  spell.duration = {
-    value: spell.duration_value,
-    unit: spell.duration_unit,
-    customUnit: spell.duration_custom_unit
-  };
-
-  // 6. Видаляємо старі поля, які ми об'єднали
-  delete spell.duration_value;
-  delete spell.duration_unit;
-  delete spell.duration_custom_unit;
 
   return spell;
 };
@@ -111,7 +123,7 @@ app.get('/api/spells/:id', async (req, res) => {
     // Використання `?` - це "prepared statement" ("підготовлений запит").
     // Це **критично важливо** для безпеки, щоб запобігти SQL-ін'єкціям.
     const sqlQuery = `
-      SELECT 
+      SELECT
         s.*,
         GROUP_CONCAT(t.name) AS traditions
       FROM spells AS s
@@ -123,12 +135,17 @@ app.get('/api/spells/:id', async (req, res) => {
 
     const [rows] = await pool.query(sqlQuery, [id]);
 
+    // Debug logging
+    console.log(`[DEBUG] Spell ID: ${id}`);
+    console.log(`[DEBUG] Raw row traditions:`, rows[0]?.traditions);
+
     if (rows.length === 0) {
       return res.status(404).send('Заклинання не знайдено');
     }
 
     // Обробляємо один рядок
     const spell = processSpellRow(rows[0]);
+    console.log(`[DEBUG] Processed traditions:`, spell.traditions);
     res.json(spell);
 
   } catch (err) {
@@ -139,9 +156,13 @@ app.get('/api/spells/:id', async (req, res) => {
 
 app.post('/api/spells', async (req, res) => {
   let connection;
-  
+
   try {
     const spellData = req.body;
+
+    // Debug: що приходить з форми
+    console.log('[DEBUG] Received spell data:', JSON.stringify(spellData, null, 2));
+    console.log('[DEBUG] Traditions received:', spellData.traditions);
 
     // 1. Одне з'єднання з пулу
     connection = await pool.getConnection();
@@ -179,13 +200,22 @@ app.post('/api/spells', async (req, res) => {
 
     // Вставка в таблицю spell_traditions
     if (spellData.traditions && spellData.traditions.length > 0) {
+      console.log('[DEBUG] Traditions to insert:', spellData.traditions);
+
+      // Створюємо плейсхолдери для кожної традиції: (?, ?, ?)
+      const placeholders = spellData.traditions.map(() => '?').join(', ');
       const traditionsQuery = `
         INSERT INTO spell_traditions (spell_id, tradition_id)
         SELECT ?, t.id
         FROM traditions AS t
-        WHERE t.name IN (?);
+        WHERE t.name IN (${placeholders});
       `;
-      await connection.query(traditionsQuery, [newSpellId, spellData.traditions]);
+
+      const queryParams = [newSpellId, ...spellData.traditions];
+      console.log('[DEBUG] Query params:', queryParams);
+
+      const [tradResult] = await connection.query(traditionsQuery, queryParams);
+      console.log('[DEBUG] Traditions insert result:', tradResult);
     }
 
     // Коміт змін

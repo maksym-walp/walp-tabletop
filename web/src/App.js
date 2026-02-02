@@ -1,74 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 
-import SpellList from './components/SpellList';
-import SpellDetail from './components/SpellDetail';
-import SpellForm from './components/SpellForm';
-import Traditions from './components/Traditions';
+import Header from './components/common/Header';
+import HomePage from './pages/HomePage';
+import ComingSoon from './pages/ComingSoon';
+import SpellList from './components/spells/SpellList';
+import SpellDetail from './components/spells/SpellDetail';
+import SpellForm from './components/spells/SpellForm';
+import Traditions from './components/spells/Traditions';
 import './App.css';
 
-function App() {
+function SpellsPage({ spells }) {
+  return (
+    <main className="spells-page">
+      <SpellList spells={spells} />
+      <Link to="/spells/add" className="add-spell-button">+</Link>
+    </main>
+  );
+}
+
+function AppContent() {
   const [spells, setSpells] = useState([]);
-  const [filteredSpells, setFilteredSpells] = useState([]);
   const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
+  const location = useLocation();
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/spells`)
       .then(res => res.json())
       .then(data => {
         setSpells(data);
-        setFilteredSpells(data);
       })
       .catch(err => console.error("Failed to fetch spells:", err));
-  }, []);
-
-  const handleFilterChange = (filters) => {
-    let tempSpells = [...spells];
-    if (filters.name) {
-      tempSpells = tempSpells.filter(spell => spell.name.toLowerCase().includes(filters.name.toLowerCase()));
-    }
-    if (filters.levels.length > 0) {
-      tempSpells = tempSpells.filter(spell => filters.levels.includes(spell.level.toString()));
-    }
-    if (filters.traditions.length > 0) {
-        tempSpells = tempSpells.filter(spell => 
-            spell.traditions.some(tradition => filters.traditions.includes(tradition))
-        );
-    }
-    setFilteredSpells(tempSpells);
-  };
+  }, [API_BASE_URL]);
 
   const handleSpellAdded = (newSpell) => {
-    const updatedSpells = [...spells, newSpell];
-    setSpells(updatedSpells);
-    setFilteredSpells(updatedSpells); // Or re-apply filters
+    setSpells(prev => [...prev, newSpell]);
   };
 
+  const showHeader = location.pathname !== '/';
+
+  return (
+    <div className="App">
+      {showHeader && <Header />}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/spells" element={<SpellsPage spells={spells} />} />
+        <Route path="/spells/:id" element={<SpellDetail />} />
+        <Route path="/spells/add" element={<SpellForm onSpellAdded={handleSpellAdded} />} />
+        <Route path="/traditions" element={<Traditions />} />
+        <Route path="/bestiary" element={<ComingSoon />} />
+        <Route path="/atlas" element={<ComingSoon />} />
+        <Route path="/characters" element={<ComingSoon />} />
+        <Route path="/profile" element={<ComingSoon />} />
+      </Routes>
+    </div>
+  );
+}
+
+function App() {
   return (
     <Router>
-      <div className="App">
-        <header className="App-header">
-          <h1>Spell Book</h1>
-          <nav>
-            <Link to="/">Заклинання</Link>
-            <Link to="/traditions">Про арканічні традиції</Link>
-          </nav>
-        </header>
-        <Routes>
-          <Route path="/" element={
-            <main>
-              <SpellList 
-                spells={filteredSpells} 
-                onFilterChange={handleFilterChange}
-              />
-              <Link to="/add-spell" className="add-spell-button">+</Link>
-            </main>
-          } />
-          <Route path="/spells/:id" element={<SpellDetail />} />
-          <Route path="/add-spell" element={<SpellForm onSpellAdded={handleSpellAdded} />} />
-          <Route path="/traditions" element={<Traditions />} />
-        </Routes>
-      </div>
+      <AppContent />
     </Router>
   );
 }

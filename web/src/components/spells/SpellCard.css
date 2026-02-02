@@ -19,7 +19,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('../assets/parchment-texture.jpeg');
+  background: url('../../assets/parchment-texture.jpeg');
   opacity: 0.1;
   pointer-events: none;
   z-index: -1;
@@ -80,6 +80,32 @@
   font-size: 0.85em;
   margin: 10px 0;
   font-style: italic;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.traditions-info-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background-color: var(--ink-color);
+  color: var(--gold-color);
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: bold;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.traditions-info-link:hover {
+  background-color: var(--accent-color);
+  transform: scale(1.1);
 }
 
 .spell-description {

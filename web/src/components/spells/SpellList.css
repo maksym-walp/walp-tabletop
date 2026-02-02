@@ -135,6 +135,23 @@
   display: none; /* Hide actual checkbox */
 }
 
+.traditions-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--gold-color);
+  font-family: 'EB Garamond', serif;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  opacity: 0.85;
+}
+
+.traditions-link:hover {
+  opacity: 1;
+  color: #fff;
+  text-decoration: underline;
+}
+
 .spell-list {
   display: grid;
   grid-template-columns: 1fr; /* Mobile-first: single column */

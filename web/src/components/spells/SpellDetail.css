@@ -1,0 +1,226 @@
+.spell-detail-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: var(--parchment-color);
+  border: 3px solid var(--gold-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px var(--shadow-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.spell-detail-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('../../assets/parchment-texture.jpeg');
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.spell-detail-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+.spell-detail-container h1 {
+  font-family: 'Cinzel', serif;
+  color: var(--accent-color);
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--gold-color);
+  text-shadow: 2px 2px 4px var(--shadow-color);
+  font-size: 1.6rem;
+}
+
+@media (min-width: 600px) {
+  .spell-detail-container {
+    margin: 20px auto;
+    padding: 40px;
+  }
+
+  .spell-detail-container h1 {
+    font-size: 2rem;
+  }
+}
+
+.spell-meta {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: var(--ink-color);
+  font-size: 1.1em;
+}
+
+.spell-level {
+  background: var(--ink-color);
+  color: var(--gold-color);
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--gold-color);
+}
+
+/* Traditions inside properties */
+.spell-traditions {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+  line-height: 1.4;
+  color: var(--ink-color);
+}
+
+.spell-traditions .traditions-list {
+  font-style: italic;
+}
+
+.spell-traditions .traditions-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background-color: var(--ink-color);
+  color: var(--gold-color);
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.spell-traditions .traditions-link:hover {
+  background-color: var(--accent-color);
+  transform: scale(1.1);
+}
+
+.spell-properties {
+  background: rgba(244, 228, 188, 0.5);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid var(--gold-color);
+}
+
+.spell-properties p {
+  margin: 8px 0;
+  line-height: 1.4;
+  color: var(--ink-color);
+}
+
+.spell-flags {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--gold-color);
+}
+
+.flag {
+  display: inline-block;
+  background-color: var(--ink-color);
+  color: var(--gold-color);
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.9em;
+  margin: 0 5px;
+  border: 1px solid var(--gold-color);
+}
+
+.level-tabs {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+  padding: 10px;
+  background: rgba(44, 24, 16, 0.05);
+  border-radius: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  white-space: nowrap;
+}
+
+.level-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.level-tabs::-webkit-scrollbar-track {
+  background: rgba(198, 169, 100, 0.2);
+}
+
+.level-tabs::-webkit-scrollbar-thumb {
+  background-color: var(--gold-color);
+  border-radius: 4px;
+}
+
+@media (max-width: 599px) {
+  .level-tabs {
+    margin: 15px -20px;
+    padding: 10px 20px;
+    border-radius: 0;
+  }
+}
+
+.level-tab {
+  padding: 8px 16px;
+  border: 2px solid var(--gold-color);
+  border-radius: 6px;
+  background: var(--parchment-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  text-align: center;
+  color: var(--ink-color);
+  font-family: 'Cinzel', serif;
+}
+
+.level-tab:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.level-tab.active {
+  background: var(--ink-color);
+  color: var(--gold-color);
+  border-color: var(--ink-color);
+}
+
+.spell-description-full {
+  margin-top: 30px;
+}
+
+.description-section {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--gold-color);
+  border-radius: 8px;
+}
+
+.description-section h3 {
+  margin-top: 0;
+  color: var(--ink-color);
+  font-family: 'Cinzel', serif;
+  border-bottom: 2px solid var(--gold-color);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.description-section p {
+  line-height: 1.6;
+  color: var(--ink-color);
+  margin: 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2em;
+  color: var(--ink-color);
+}

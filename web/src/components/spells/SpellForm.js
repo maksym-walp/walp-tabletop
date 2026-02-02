@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SpellForm.css';
-import spellConfig from '../config/spellConfig.json';
+import spellConfig from '../../config/spellConfig.json';
 
 const SpellForm = ({ onSpellAdded }) => {
   const navigate = useNavigate();
@@ -116,7 +116,7 @@ const SpellForm = ({ onSpellAdded }) => {
     .then(res => res.json())
     .then(data => {
       onSpellAdded(data);
-      navigate('/');
+      navigate('/spells');
     })
     .catch(err => console.error("Failed to add spell:", err));
   };

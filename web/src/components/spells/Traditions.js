@@ -1,5 +1,5 @@
 import React from 'react';
-import traditions from '../config/traditions.json';
+import traditions from '../../config/traditions.json';
 import './Traditions.css';
 
 const Traditions = () => {

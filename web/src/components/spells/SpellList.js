@@ -1,7 +1,8 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import SpellCard from './SpellCard';
-import spellConfig from '../config/spellConfig.json';
+import spellConfig from '../../config/spellConfig.json';
 import './SpellList.css';
 
 const SpellList = ({ spells }) => {
@@ -116,6 +117,9 @@ const SpellList = ({ spells }) => {
                 </label>
               ))}
             </div>
+            <Link to="/traditions" className="traditions-link">
+              Дізнатись більше про арканічні традиції
+            </Link>
           </div>
 
           <div className="filter-group flags">

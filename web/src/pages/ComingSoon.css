@@ -1,0 +1,122 @@
+.coming-soon-page {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  min-height: calc(100vh - 100px);
+}
+
+.coming-soon-content {
+  text-align: center;
+  max-width: 500px;
+  background: linear-gradient(145deg, rgba(244, 228, 188, 0.95), rgba(230, 210, 165, 0.95));
+  border: 2px solid var(--gold-color);
+  border-radius: 16px;
+  padding: 40px 24px;
+  box-shadow: 0 8px 32px var(--shadow-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.coming-soon-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('../assets/parchment-texture.jpeg') center/cover;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.coming-soon-content > * {
+  position: relative;
+  z-index: 1;
+}
+
+.coming-soon-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  line-height: 1;
+}
+
+.coming-soon-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.8rem;
+  color: var(--ink-color);
+  margin: 0 0 16px 0;
+}
+
+.coming-soon-description {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.1rem;
+  color: var(--ink-color);
+  opacity: 0.9;
+  margin: 0 0 24px 0;
+  line-height: 1.6;
+}
+
+.coming-soon-badge-container {
+  margin-bottom: 24px;
+}
+
+.coming-soon-badge-large {
+  display: inline-block;
+  background-color: var(--ink-color);
+  color: var(--gold-color);
+  padding: 10px 28px;
+  border-radius: 24px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border: 1px solid var(--gold-color);
+}
+
+.coming-soon-message {
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  color: var(--ink-color);
+  opacity: 0.75;
+  margin: 0 0 28px 0;
+  font-style: italic;
+}
+
+.back-home-button {
+  display: inline-block;
+  background-color: var(--accent-color);
+  color: var(--parchment-color);
+  text-decoration: none;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  border: 2px solid var(--accent-color);
+}
+
+.back-home-button:hover {
+  background-color: transparent;
+  color: var(--accent-color);
+}
+
+/* Tablet and Desktop */
+@media (min-width: 600px) {
+  .coming-soon-content {
+    padding: 48px 40px;
+  }
+
+  .coming-soon-icon {
+    font-size: 5rem;
+  }
+
+  .coming-soon-title {
+    font-size: 2.2rem;
+  }
+
+  .coming-soon-description {
+    font-size: 1.2rem;
+  }
+}

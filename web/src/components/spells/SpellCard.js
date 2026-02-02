@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import spellConfig from '../config/spellConfig.json';
+import spellConfig from '../../config/spellConfig.json';
 import './SpellCard.css';
 
 const SpellCard = ({ spell }) => {
@@ -36,7 +36,16 @@ const SpellCard = ({ spell }) => {
           <p><strong>🚶 Відстань:</strong> {spell.range} {spellConfig.range.units}</p>
           <p><strong>⌛ Тривалість:</strong> {getDurationText(spell.duration)}</p>
         </div>
-        <p className="traditions"><strong>Традиції:</strong> {spell.traditions.join(', ')}</p>
+        <p className="traditions">
+          <strong>Традиції:</strong> {(spell.traditions || []).join(', ') || 'Не вказано'}
+          <Link
+            to="/traditions"
+            className="traditions-info-link"
+            onClick={(e) => e.stopPropagation()}
+          >
+            ?
+          </Link>
+        </p>
         <p className="spell-description">{spell.narrativeDescription}</p>
         {spell.hasHigherLevels && (
           <div className="higher-levels-indicator">

@@ -1,0 +1,139 @@
+.service-card {
+  background: linear-gradient(145deg, rgba(244, 228, 188, 0.95), rgba(230, 210, 165, 0.95));
+  border: 2px solid var(--gold-color);
+  border-radius: 12px;
+  padding: 24px 20px;
+  text-decoration: none;
+  color: var(--ink-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('../../assets/parchment-texture.jpeg') center/cover;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.service-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.service-card.active {
+  cursor: pointer;
+}
+
+.service-card.active:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px var(--shadow-color);
+  border-color: var(--accent-color);
+}
+
+.service-card.active:active {
+  transform: translateY(-2px);
+}
+
+.service-card.disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.service-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.service-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.25rem;
+  margin: 0 0 12px 0;
+  color: var(--ink-color);
+}
+
+.service-description {
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+  color: var(--ink-color);
+  opacity: 0.9;
+}
+
+.service-status {
+  margin-top: auto;
+}
+
+.status-badge {
+  background-color: var(--ink-color);
+  color: var(--gold-color);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.service-arrow {
+  margin-top: auto;
+  color: var(--accent-color);
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: gap 0.3s ease;
+}
+
+.service-card.active:hover .service-arrow {
+  gap: 12px;
+}
+
+.service-arrow::after {
+  content: '\2192';
+  font-size: 1.2rem;
+}
+
+/* Tablet */
+@media (min-width: 600px) {
+  .service-card {
+    padding: 28px 24px;
+  }
+
+  .service-icon {
+    font-size: 3.5rem;
+  }
+
+  .service-title {
+    font-size: 1.4rem;
+  }
+}
+
+/* Desktop */
+@media (min-width: 900px) {
+  .service-card {
+    padding: 32px 28px;
+  }
+
+  .service-title {
+    font-size: 1.5rem;
+  }
+
+  .service-description {
+    font-size: 1.1rem;
+  }
+}

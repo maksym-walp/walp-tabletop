@@ -1,0 +1,135 @@
+.home-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 32px 16px;
+  margin-bottom: 24px;
+}
+
+.hero-title {
+  font-family: 'Cinzel', serif;
+  font-size: 2.2rem;
+  color: var(--ink-color);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  margin: 0 0 12px 0;
+  text-shadow: 2px 2px 4px var(--shadow-color);
+}
+
+.hero-subtitle {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.15rem;
+  color: var(--ink-color);
+  opacity: 0.85;
+  margin: 0;
+}
+
+/* Services Section */
+.services-section {
+  flex: 1;
+}
+
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.3rem;
+  color: var(--ink-color);
+  text-align: center;
+  margin: 0 0 24px 0;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 2px;
+  background-color: var(--gold-color);
+  margin: 12px auto 0;
+}
+
+/* Services Grid - Mobile First */
+.services-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* Tablet - 2 columns */
+@media (min-width: 600px) {
+  .home-page {
+    padding: 24px;
+  }
+
+  .hero {
+    padding: 48px 24px;
+    margin-bottom: 32px;
+  }
+
+  .hero-title {
+    font-size: 2.8rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 32px;
+  }
+
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+/* Desktop - 3 columns */
+@media (min-width: 900px) {
+  .home-page {
+    padding: 32px 40px;
+  }
+
+  .hero {
+    padding: 64px 32px;
+    margin-bottom: 40px;
+  }
+
+  .hero-title {
+    font-size: 3.2rem;
+    letter-spacing: 6px;
+  }
+
+  .hero-subtitle {
+    font-size: 1.35rem;
+  }
+
+  .section-title {
+    font-size: 1.6rem;
+  }
+
+  .services-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}
+
+/* Large Desktop */
+@media (min-width: 1200px) {
+  .hero-title {
+    font-size: 3.5rem;
+  }
+
+  .services-grid {
+    gap: 28px;
+  }
+}

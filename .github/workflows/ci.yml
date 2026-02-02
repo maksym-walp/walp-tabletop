@@ -201,7 +201,7 @@ jobs:
           EOF
 
       - name: Start services
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Wait for services to be ready
         run: |
@@ -219,11 +219,11 @@ jobs:
 
       - name: Show logs on failure
         if: failure()
-        run: docker-compose logs
+        run: docker compose logs
 
       - name: Cleanup
         if: always()
-        run: docker-compose down -v
+        run: docker compose down -v
 
   # Summary job - показує результат
   ci-summary:
