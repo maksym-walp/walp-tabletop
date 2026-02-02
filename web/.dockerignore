@@ -1,0 +1,64 @@
+# Dependencies
+node_modules
+npm-debug.log
+package-lock.json
+
+# Testing
+coverage
+*.test.js
+*.spec.js
+*.test.jsx
+*.spec.jsx
+__tests__
+.nyc_output
+src/**/*.test.*
+src/**/*.spec.*
+
+# Build outputs (не ігноруємо build, бо він потрібен в multi-stage)
+dist
+
+# Development
+public/mockServiceWorker.js
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.test
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+CHANGELOG.md
+docs
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Logs
+logs
+*.log
+
+# Server (якщо є окремий backend)
+server/node_modules
+
+# Misc
+.editorconfig
+.eslintrc*
+.prettierrc*
+tsconfig.json
+jest.config.js

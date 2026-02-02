@@ -7,20 +7,6 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org/)
 [![Docker](https://img.shields.io/badge/Docker-required-blue)](https://www.docker.com/)
 
----
-
-## 📋 Зміст
-
-- [Про проект](#-про-проект)
-- [Швидкий старт](#-швидкий-старт)
-- [Архітектура](#️-архітектура)
-- [Документація](#-документація)
-- [Розробка](#-розробка)
-- [Deployment](#-deployment)
-- [Команда](#-команда)
-
----
-
 ## 🎯 Про проект
 
 **Walpapur Tabletop** - це веб-застосунок для настільних рольових ігор (TTRPG). Побудований на мікросервісній архітектурі для забезпечення масштабованості та підтримуваності.
@@ -38,8 +24,6 @@
 **Frontend:** React 19, React Router
 **Infrastructure:** Docker, NGINX, GitHub Actions
 
----
-
 ## 🚀 Швидкий старт
 
 ### Вимоги
@@ -52,7 +36,7 @@
 
 ```bash
 # 1. Клонувати репозиторій
-git clone https://github.com/maksym-walp/SpellBook.git
+git clone https://github.com/maksym-walp/walp-tabletop.git
 cd walp-tabletop
 
 # 2. Налаштувати environment variables
@@ -68,8 +52,6 @@ npm run dev
 - **Frontend**: http://localhost
 - **API Gateway**: http://localhost:3000
 
----
-
 ## 🏗️ Архітектура
 
 ```
@@ -78,13 +60,11 @@ Browser → Web (React) → Gateway (NGINX) → Auth / Spell Services → MySQL
 
 **Детальна схема**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
----
-
-## 📚 Документація
 
 ### Загальна
 
 - **[Архітектура](docs/ARCHITECTURE.md)** - схема мікросервісів та взаємодії
+- **[Docker](docs/DOCKER.md)** - робота з контейнерами
 - **[Git Workflow](docs/GIT_WORKFLOW.md)** - правила роботи з Git
 - **[Code Style](docs/CODE_STYLE.md)** - стандарти коду
 
@@ -94,10 +74,6 @@ Browser → Web (React) → Gateway (NGINX) → Auth / Spell Services → MySQL
 - **[Spell Service](services/spell-service/README.md)** - заклинання
 - **[Gateway](gateway/README.md)** - API Gateway
 - **[Web](web/README.md)** - Frontend
-
----
-
-## 💻 Розробка
 
 ### Структура
 
@@ -111,52 +87,19 @@ SpellBook/
 └── docs/              # Документація
 ```
 
-### Команди
-
-```bash
-npm run dev           # Запустити
-npm test              # Тести
-npm run build         # Build
-npm run db:shell      # MySQL shell
-```
-
-Більше команд: `npm run` (показує всі доступні)
-
----
-
-## 🚢 Deployment
-
-```bash
-npm run prod:build    # Production build
-```
-
-CI/CD: GitHub Actions ([.github/workflows/](.github/workflows/))
-
----
-
 ## 👥 Команда
 
-**Lead Developer:** Maksym ([@maksym-walp](https://github.com/maksym-walp))
+- **Lead Developer, DevOps:** Maksym ([@maksym-walp](https://github.com/maksym-walp))
+- **Developer:** Oleksandr ([@Kapysta017](https://github.com/kapysta017))
+- **Developer:** Denys ([@Ittero](https://github.com/ittero))
 
 ### Для нових розробників
 
 1. Прочитайте [Git Workflow](docs/GIT_WORKFLOW.md)
 2. Ознайомтесь з [Code Style](docs/CODE_STYLE.md)
 3. Вивчіть [Architecture](docs/ARCHITECTURE.md)
-
-```bash
-# Fork → Clone → Branch → Commit → PR
-git checkout -b feature/your-feature
-git commit -m "feat(scope): description"
-git push origin feature/your-feature
-```
+4. Yавчіться працювати з [Docker](docs/DOCKER.md)
 
 ---
 
-## 📝 Ліцензія
-
-MIT License
-
----
-
-**Версія:** 1.0.0 | **Оновлено:** 2026-02-01
+**Версія:** 0.1.2 | **Оновлено:** 2026-02-01

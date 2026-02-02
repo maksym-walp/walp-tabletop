@@ -8,22 +8,22 @@
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│                        Browser                            │
-│                   (User Interface)                        │
+│                        Browser                           │
+│                   (User Interface)                       │
 └─────────────────────┬────────────────────────────────────┘
                       │ HTTP
                       ▼
 ┌──────────────────────────────────────────────────────────┐
-│                     Web Service                           │
-│               React SPA + NGINX                           │
-│                    Port: 80/443                           │
+│                     Web Service                          │
+│               React SPA + NGINX                          │
+│                    Port: 80/443                          │
 └─────────────────────┬────────────────────────────────────┘
                       │ HTTP/HTTPS
                       ▼
 ┌──────────────────────────────────────────────────────────┐
-│                   API Gateway                             │
+│                   API Gateway                            │
 │           NGINX Reverse Proxy + JWT Verification         │
-│                     Port: 3000                            │
+│                     Port: 3000                           │
 └─────────┬─────────────────────────┬──────────────────────┘
           │                         │
           │ HTTP                    │ HTTP
@@ -303,7 +303,7 @@ spells
 ```javascript
 // Gateway CORS configuration
 {
-  origin: ['http://localhost', 'https://your-domain.com'],
+  origin: ['http://localhost', 'https://tabletop.walpapur.com'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -315,84 +315,6 @@ spells
 - Окремі бази даних для різних сервісів
 - Окремі користувачі БД з обмеженими правами
 - Паролі зберігаються як bcrypt hash (не plaintext!)
-
----
-
-## Масштабування
-
-### Horizontal Scaling
-
-Кожен сервіс може масштабуватись незалежно:
-
-```
-Gateway (Load Balancer)
-  ├─▶ Auth Service 1
-  ├─▶ Auth Service 2
-  └─▶ Auth Service 3
-
-  ├─▶ Spell Service 1
-  ├─▶ Spell Service 2
-  └─▶ Spell Service 3
-```
-
-### Caching (майбутнє)
-
-**Redis** для кешування:
-- Frequently accessed spells
-- User sessions
-- API rate limiting
-
----
-
-## Моніторинг та логування
-
-### Logs
-
-**Gateway:**
-```
-[2026-02-01 10:30:00] GET /api/spells → 200 (45ms)
-[2026-02-01 10:30:05] POST /api/auth/login → 401 (12ms)
-```
-
-**Services:**
-```
-[Auth] User registered: user@example.com
-[Spell] Spell created: Fireball (id: 123)
-```
-
-### Health Checks
-
-```
-GET /health → { status: "ok", uptime: 3600, version: "1.0.0" }
-```
-
-**Database:**
-```bash
-mysqladmin ping -h localhost  # Healthcheck
-```
-
----
-
-## Майбутні покращення
-
-### Короткострокові (1-2 місяці)
-
-- [ ] Character Service - управління персонажами
-- [ ] Inventory Service - інвентар
-- [ ] WebSocket для real-time updates
-
-### Середньострокові (3-6 місяців)
-
-- [ ] Redis caching layer
-- [ ] Message Queue (RabbitMQ/Kafka)
-- [ ] API Rate limiting per user
-
-### Довгострокові (6-12 місяців)
-
-- [ ] Kubernetes deployment
-- [ ] Service Mesh (Istio)
-- [ ] Event-driven architecture
-- [ ] CQRS pattern
 
 ---
 

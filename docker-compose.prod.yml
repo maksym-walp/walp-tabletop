@@ -51,6 +51,12 @@ services:
         condition: service_healthy
     networks:
       - spellbook-network-prod
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3001/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     # Логи
     logging:
       driver: "json-file"
@@ -87,6 +93,12 @@ services:
         condition: service_healthy
     networks:
       - spellbook-network-prod
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3002/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     # Логи
     logging:
       driver: "json-file"
@@ -119,10 +131,18 @@ services:
       - AUTH_SERVICE_URL=http://auth-service:3001
       - SPELL_SERVICE_URL=http://spell-service:3002
     depends_on:
-      - auth-service
-      - spell-service
+      auth-service:
+        condition: service_healthy
+      spell-service:
+        condition: service_healthy
     networks:
       - spellbook-network-prod
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     # Логи
     logging:
       driver: "json-file"
@@ -158,9 +178,16 @@ services:
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
     depends_on:
-      - gateway
+      gateway:
+        condition: service_healthy
     networks:
       - spellbook-network-prod
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     # Логи
     logging:
       driver: "json-file"
