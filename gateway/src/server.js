@@ -2,13 +2,27 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
+const swaggerUi = require('swagger-ui-express');
 const { verifyToken, optionalAuth } = require('./middleware/auth');
+const openApiSpec = require('./docs/openapi');
 
 const app = express();
 const port = process.env.PORT || 3000;
 const host = '0.0.0.0';
 
 app.use(cors());
+
+// API docs
+app.get('/api/openapi.json', (req, res) => {
+  res.json(openApiSpec);
+});
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, {
+  explorer: true,
+  swaggerOptions: {
+    persistAuthorization: true
+  }
+}));
 
 // Health check
 app.get('/health', (req, res) => {
