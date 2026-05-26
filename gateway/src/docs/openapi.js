@@ -1,273 +1,277 @@
 module.exports = {
-  openapi: '3.0.3',
+  openapi: "3.0.3",
   info: {
-    title: 'WALP Tabletop API',
-    version: '1.0.0',
-    description: 'Gateway API documentation for auth and spells endpoints.'
+    title: "WALP Tabletop API",
+    version: "1.0.0",
+    description: "Gateway API documentation for auth and spells endpoints.",
   },
   servers: [
     {
-      url: process.env.PUBLIC_API_BASE_URL || 'http://localhost:3000',
-      description: 'API Gateway'
-    }
+      url: process.env.PUBLIC_API_BASE_URL || "http://localhost:3000",
+      description: "API Gateway",
+    },
   ],
-  tags: [
-    { name: 'Health' },
-    { name: 'Auth' },
-    { name: 'Spells' }
-  ],
+  tags: [{ name: "Health" }, { name: "Auth" }, { name: "Spells" }],
   components: {
     securitySchemes: {
       bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT'
-      }
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      },
     },
     schemas: {
       ErrorResponse: {
-        type: 'object',
+        type: "object",
         properties: {
-          message: { type: 'string', example: 'Помилка сервера' }
-        }
+          message: { type: "string", example: "Помилка сервера" },
+        },
       },
       RegisterRequest: {
-        type: 'object',
-        required: ['username', 'email', 'password'],
+        type: "object",
+        required: ["username", "email", "password"],
         properties: {
-          username: { type: 'string', minLength: 3, example: 'mage123' },
-          email: { type: 'string', format: 'email', example: 'mage@example.com' },
-          password: { type: 'string', minLength: 6, example: 'secret123' }
-        }
+          username: { type: "string", minLength: 3, example: "mage123" },
+          email: {
+            type: "string",
+            format: "email",
+            example: "mage@example.com",
+          },
+          password: { type: "string", minLength: 6, example: "secret123" },
+        },
       },
       LoginRequest: {
-        type: 'object',
-        required: ['email', 'password'],
+        type: "object",
+        required: ["email", "password"],
         properties: {
-          email: { type: 'string', format: 'email', example: 'mage@example.com' },
-          password: { type: 'string', example: 'secret123' }
-        }
+          email: {
+            type: "string",
+            format: "email",
+            example: "mage@example.com",
+          },
+          password: { type: "string", example: "secret123" },
+        },
       },
       LoginResponse: {
-        type: 'object',
+        type: "object",
         properties: {
-          token: { type: 'string' },
-          userId: { type: 'integer', example: 1 },
-          username: { type: 'string', example: 'mage123' }
-        }
+          token: { type: "string" },
+          userId: { type: "integer", example: 1 },
+          username: { type: "string", example: "mage123" },
+        },
       },
       RegisterResponse: {
-        type: 'object',
+        type: "object",
         properties: {
-          message: { type: 'string', example: 'Користувач створений' },
-          userId: { type: 'integer', example: 1 }
-        }
+          message: { type: "string", example: "Користувач створений" },
+          userId: { type: "integer", example: 1 },
+        },
       },
       SpellDuration: {
-        type: 'object',
+        type: "object",
         properties: {
-          value: { type: 'integer', nullable: true },
-          unit: { type: 'string', nullable: true },
-          customUnit: { type: 'string', nullable: true }
-        }
+          value: { type: "integer", nullable: true },
+          unit: { type: "string", nullable: true },
+          customUnit: { type: "string", nullable: true },
+        },
       },
       Spell: {
-        type: 'object',
+        type: "object",
         properties: {
-          id: { type: 'integer', example: 42 },
-          name: { type: 'string', example: 'Вогняний Шторм' },
-          level: { type: 'integer', example: 3 },
-          actions: { type: 'integer', example: 2 },
-          range: { type: 'string', example: '30 футів' },
-          concentration: { type: 'boolean', example: false },
-          ritual: { type: 'boolean', example: false },
+          id: { type: "integer", example: 42, readOnly: true },
+          name: { type: "string", example: "Вогняний Шторм" },
+          level: { type: "integer", example: 3 },
+          actions: { type: "integer", example: 2 },
+          range: { type: "string", example: "30 футів" },
+          concentration: { type: "boolean", example: false },
+          ritual: { type: "boolean", example: false },
           traditions: {
-            type: 'array',
-            items: { type: 'string' },
-            example: ['Аркана', 'Примал']
+            type: "array",
+            items: { type: "string" },
+            example: ["Аркана", "Примал"],
           },
           components: {
-            type: 'array',
-            items: { type: 'string' },
-            example: ['V', 'S']
+            type: "array",
+            items: { type: "string" },
+            example: ["V", "S"],
           },
-          narrativeDescription: { type: 'string' },
-          mechanicalDescription: { type: 'string' },
-          hasHigherLevels: { type: 'boolean', example: true },
+          narrativeDescription: { type: "string" },
+          mechanicalDescription: { type: "string" },
+          hasHigherLevels: { type: "boolean", example: true },
           higherLevels: {
-            type: 'object',
-            additionalProperties: { type: 'string' }
+            type: "object",
+            additionalProperties: { type: "string" },
           },
-          duration: { $ref: '#/components/schemas/SpellDuration' }
-        }
+          duration: { $ref: "#/components/schemas/SpellDuration" },
+        },
       },
       CreateSpellRequest: {
-        allOf: [{ $ref: '#/components/schemas/Spell' }],
-        required: ['name', 'level', 'actions', 'range', 'duration']
-      }
-    }
+        allOf: [{ $ref: "#/components/schemas/Spell" }],
+        required: ["name", "level", "actions", "range", "duration"],
+      },
+    },
   },
   paths: {
-    '/health': {
+    "/health": {
       get: {
-        tags: ['Health'],
-        summary: 'Gateway health check',
+        tags: ["Health"],
+        summary: "Gateway health check",
         responses: {
           200: {
-            description: 'Service is healthy',
+            description: "Service is healthy",
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  type: 'object',
+                  type: "object",
                   properties: {
-                    status: { type: 'string', example: 'ok' },
-                    service: { type: 'string', example: 'api-gateway' }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    status: { type: "string", example: "ok" },
+                    service: { type: "string", example: "api-gateway" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
-    '/api/auth/register': {
+    "/api/auth/register": {
       post: {
-        tags: ['Auth'],
-        summary: 'Register a new user',
+        tags: ["Auth"],
+        summary: "Register a new user",
         requestBody: {
           required: true,
           content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/RegisterRequest' }
-            }
-          }
+            "application/json": {
+              schema: { $ref: "#/components/schemas/RegisterRequest" },
+            },
+          },
         },
         responses: {
           201: {
-            description: 'User created',
+            description: "User created",
             content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/RegisterResponse' }
-              }
-            }
+              "application/json": {
+                schema: { $ref: "#/components/schemas/RegisterResponse" },
+              },
+            },
           },
-          400: { description: 'Validation error' },
-          409: { description: 'User already exists' },
+          400: { description: "Validation error" },
+          409: { description: "User already exists" },
           500: {
-            description: 'Server error',
+            description: "Server error",
             content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' }
-              }
-            }
-          }
-        }
-      }
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
     },
-    '/api/auth/login': {
+    "/api/auth/login": {
       post: {
-        tags: ['Auth'],
-        summary: 'Login and get JWT token',
+        tags: ["Auth"],
+        summary: "Login and get JWT token",
         requestBody: {
           required: true,
           content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/LoginRequest' }
-            }
-          }
+            "application/json": {
+              schema: { $ref: "#/components/schemas/LoginRequest" },
+            },
+          },
         },
         responses: {
           200: {
-            description: 'Authenticated',
+            description: "Authenticated",
             content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/LoginResponse' }
-              }
-            }
+              "application/json": {
+                schema: { $ref: "#/components/schemas/LoginResponse" },
+              },
+            },
           },
-          401: { description: 'Invalid credentials' },
+          401: { description: "Invalid credentials" },
           500: {
-            description: 'Server error',
+            description: "Server error",
             content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/ErrorResponse' }
-              }
-            }
-          }
-        }
-      }
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" },
+              },
+            },
+          },
+        },
+      },
     },
-    '/api/spells': {
+    "/api/spells": {
       get: {
-        tags: ['Spells'],
-        summary: 'Get all spells',
+        tags: ["Spells"],
+        summary: "Get all spells",
         security: [{ bearerAuth: [] }],
         responses: {
           200: {
-            description: 'List of spells',
+            description: "List of spells",
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  type: 'array',
-                  items: { $ref: '#/components/schemas/Spell' }
-                }
-              }
-            }
+                  type: "array",
+                  items: { $ref: "#/components/schemas/Spell" },
+                },
+              },
+            },
           },
-          500: { description: 'Server error' }
-        }
+          500: { description: "Server error" },
+        },
       },
       post: {
-        tags: ['Spells'],
-        summary: 'Create a new spell',
+        tags: ["Spells"],
+        summary: "Create a new spell",
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
           content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/CreateSpellRequest' }
-            }
-          }
+            "application/json": {
+              schema: { $ref: "#/components/schemas/CreateSpellRequest" },
+            },
+          },
         },
         responses: {
           201: {
-            description: 'Spell created',
+            description: "Spell created",
             content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/Spell' }
-              }
-            }
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Spell" },
+              },
+            },
           },
-          500: { description: 'Server error' }
-        }
-      }
+          500: { description: "Server error" },
+        },
+      },
     },
-    '/api/spells/{id}': {
+    "/api/spells/{id}": {
       get: {
-        tags: ['Spells'],
-        summary: 'Get spell by ID',
+        tags: ["Spells"],
+        summary: "Get spell by ID",
         security: [{ bearerAuth: [] }],
         parameters: [
           {
-            name: 'id',
-            in: 'path',
+            name: "id",
+            in: "path",
             required: true,
-            schema: { type: 'integer' }
-          }
+            schema: { type: "integer" },
+          },
         ],
         responses: {
           200: {
-            description: 'Spell found',
+            description: "Spell found",
             content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/Spell' }
-              }
-            }
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Spell" },
+              },
+            },
           },
-          404: { description: 'Spell not found' },
-          500: { description: 'Server error' }
-        }
-      }
-    }
-  }
+          404: { description: "Spell not found" },
+          500: { description: "Server error" },
+        },
+      },
+    },
+  },
 };
