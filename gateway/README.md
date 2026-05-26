@@ -22,6 +22,8 @@
 ```
 /api/auth/*    → auth-service:3001
 /api/spells/*  → spell-service:3002
+/api/docs      → Swagger UI
+/api/openapi.json → OpenAPI JSON
 ```
 
 ---
@@ -47,6 +49,7 @@ PORT=3000
 JWT_SECRET=your-secret-key
 AUTH_SERVICE_URL=http://auth-service:3001
 SPELL_SERVICE_URL=http://spell-service:3002
+PUBLIC_API_BASE_URL=http://localhost:3000
 ```
 
 ---
