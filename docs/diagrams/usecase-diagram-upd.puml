@@ -1,0 +1,57 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Гість (Guest)" as guest
+actor "Гравець (Player)" as player
+actor "Майстер гри (GM)" as gm
+actor "Розробник / Тестувальник" as dev
+
+player --|> guest
+gm --|> player
+
+rectangle "TTRPG Platform (Updated System Boundary)" {
+    
+    package "Auth Service" {
+        usecase "Реєстрація та Вхід" as UC_auth
+        usecase "Валідація JWT-сесії" as UC_validate_jwt
+    }
+    
+    package "Spell & Monster Services" {
+        usecase "Перегляд / Пошук заклинань та монстрів" as UC_view_content
+        usecase "Створення карток монстрів" as UC_create_monster
+        usecase "Редагування / Видалення монстрів" as UC_manage_monster
+        usecase "Управління каталогом заклинань" as UC_manage_spells
+    }
+    
+    package "Dice Real-time Service" {
+        usecase "Кидок кубиків за формулою" as UC_roll_dice
+        usecase "Перегляд результатів у реальному часі" as UC_view_rolls
+    }
+    
+    package "Infrastructure & Docs" {
+        usecase "Перегляд інтерактивної документації API" as UC_view_swagger
+        usecase "Тестування ендпоінтів мікросервісів" as UC_test_api
+    }
+}
+
+guest --> UC_auth
+
+player --> UC_view_content
+player --> UC_roll_dice
+player --> UC_view_rolls
+
+gm --> UC_create_monster
+gm --> UC_manage_monster
+gm --> UC_manage_spells
+
+dev --> UC_view_swagger
+dev --> UC_test_api
+
+'' Зв'язки Include
+UC_view_content ..> UC_validate_jwt : <<include>>
+UC_create_monster ..> UC_validate_jwt : <<include>>
+UC_roll_dice ..> UC_validate_jwt : <<include>>
+UC_view_swagger ..> UC_validate_jwt : <<include>>
+
+@endum

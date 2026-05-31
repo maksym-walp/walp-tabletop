@@ -1,0 +1,301 @@
+@startuml Class Diagram - Walpapur Tabletop Data Models
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam class {
+    BackgroundColor #E1F5FE
+    BorderColor #01579B
+    ArrowColor #01579B
+}
+skinparam FontColor #000000
+
+title Class Diagram - Walpapur Tabletop System Architecture
+
+package "Domain Models" #E8F4F8 {
+    
+    class User {
+        - id: int (PK)
+        - username: string
+        - email: string
+        - password_hash: string
+        - created_at: timestamp
+        --
+        + register(username, email, password): User
+        + login(email, password): JWT
+        + verifyPassword(password): boolean
+        + hashPassword(password): string
+    }
+    
+    class Spell {
+        - id: int (PK)
+        - name: string
+        - level: int
+        - school: string
+        - casting_time: string
+        - range: string
+        - components: JSON array
+        - duration: string
+        - description: text
+        - traditions: string (comma-separated)
+        - created_at: timestamp
+        --
+        + create(spellData): Spell
+        + update(id, spellData): Spell
+        + delete(id): boolean
+        + getTraditions(): string[]
+        + getComponents(): object[]
+    }
+    
+    class Spellbook {
+        - id: int (PK)
+        - user_id: int (FK)
+        - name: string
+        - description: text
+        - is_public: boolean
+        - created_at: timestamp
+        --
+        + create(userId, name): Spellbook
+        + addSpell(spellId): boolean
+        + removeSpell(spellId): boolean
+        + getSpells(): Spell[]
+        + setPublic(isPublic): void
+        + getOwner(): User
+    }
+    
+    class Component {
+        - id: int (PK)
+        - spell_id: int (FK)
+        - type: string (VERBAL, SOMATIC, MATERIAL)
+        - description: string
+        --
+        + create(spellId, type, description): Component
+        + getSpell(): Spell
+    }
+    
+    class Tradition {
+        - id: int (PK)
+        - name: string
+        - description: text
+        --
+        + getTraditionName(): string
+        + getDescription(): string
+    }
+}
+
+package "Service Layer" #D4E6F1 {
+    
+    class AuthService {
+        - db: DatabaseConnection
+        --
+        + register(username, email, password): Object
+        + login(email, password): Object
+        + verifyToken(token): Object
+        + generateToken(userId, email): string
+        - validateEmail(email): boolean
+        - validatePassword(password): boolean
+    }
+    
+    class SpellService {
+        - db: DatabaseConnection
+        --
+        + getAllSpells(): Spell[]
+        + getSpellById(id): Spell
+        + createSpell(spellData): Spell
+        + updateSpell(id, spellData): Spell
+        + deleteSpell(id): boolean
+        + searchSpells(query): Spell[]
+        + filterByTradition(tradition): Spell[]
+        + filterByLevel(level): Spell[]
+    }
+    
+    class SpellbookService {
+        - db: DatabaseConnection
+        --
+        + createSpellbook(userId, name): Spellbook
+        + getUserSpellbooks(userId): Spellbook[]
+        + addSpellToBook(bookId, spellId): boolean
+        + removeSpellFromBook(bookId, spellId): boolean
+        + getPublicSpellbooks(): Spellbook[]
+    }
+}
+
+package "Middleware Layer" #AED6F1 {
+    
+    class AuthMiddleware {
+        --
+        + verifyToken(req, res, next): void
+        + optionalAuth(req, res, next): void
+        + requireAuth(req, res, next): void
+        - extractToken(req): string
+    }
+    
+    class CORSMiddleware {
+        --
+        + configureCORS(): express.cors
+        + allowOrigin(origin): boolean
+    }
+    
+    class LoggingMiddleware {
+        --
+        + logRequest(req, res, next): void
+        + logResponse(res): void
+    }
+}
+
+package "API Layer" #85C1E2 {
+    
+    class AuthController {
+        - authService: AuthService
+        --
+        + register(req, res): void
+        + login(req, res): void
+        + logout(req, res): void
+    }
+    
+    class SpellController {
+        - spellService: SpellService
+        --
+        + getAll(req, res): void
+        + getById(req, res): void
+        + create(req, res): void
+        + update(req, res): void
+        + delete(req, res): void
+        + search(req, res): void
+    }
+    
+    class SpellbookController {
+        - spellbookService: SpellbookService
+        --
+        + getAll(req, res): void
+        + create(req, res): void
+        + addSpell(req, res): void
+        + removeSpell(req, res): void
+    }
+}
+
+package "Frontend Components" #BBDEFB {
+    
+    class SpellList {
+        - spells: Spell[]
+        - filteredSpells: Spell[]
+        --
+        + render(): JSX
+        + handleFilter(tradition): void
+        + handleSort(sortBy): void
+    }
+    
+    class SpellDetail {
+        - spell: Spell
+        - traditions: string[]
+        - components: Component[]
+        --
+        + render(): JSX
+        + fetchSpellData(): void
+        + handleEdit(): void
+    }
+    
+    class SpellForm {
+        - formData: object
+        - errors: string[]
+        --
+        + render(): JSX
+        + handleSubmit(formData): void
+        + validateForm(): boolean
+    }
+    
+    class AuthForm {
+        - mode: string (LOGIN | REGISTER)
+        --
+        + render(): JSX
+        + handleLogin(): void
+        + handleRegister(): void
+        + storeToken(token): void
+    }
+}
+
+package "Database Layer" #5DADE2 {
+    
+    class Database {
+        - host: string
+        - port: int
+        - user: string
+        - password: string
+        --
+        + connect(): Connection
+        + query(sql, params): Promise
+        + close(): void
+    }
+    
+    class AuthDatabase {
+        - pool: ConnectionPool
+        --
+        + queryUser(email): User
+        + insertUser(userData): int
+        + updateUser(userId, userData): boolean
+    }
+    
+    class SpellsDatabase {
+        - pool: ConnectionPool
+        --
+        + querySpells(filters): Spell[]
+        + insertSpell(spellData): int
+        + updateSpell(spellId, spellData): boolean
+        + deleteSpell(spellId): boolean
+    }
+}
+
+note right of User
+    Represents a user account in the system.
+    Email and username must be unique.
+    Password is stored as bcrypt hash.
+end note
+
+note right of Spell
+    Represents a single spell with all its properties.
+    Traditions are comma-separated in database.
+    Components are stored as JSON.
+end note
+
+note right of Spellbook
+    Collection of spells owned by a user.
+    Can be public or private.
+    Supports many-to-many with spells.
+end note
+
+note right of AuthService
+    Handles user authentication and JWT generation.
+    Validates credentials against database.
+    Integrates with bcrypt for password security.
+end note
+
+note right of SpellService
+    Core spell management service.
+    Supports CRUD operations on spells.
+    Provides search and filtering capabilities.
+end note
+
+note right of SpellbookService
+    Manages user spellbook collections.
+    Tracks spell-to-spellbook relationships.
+    Handles public/private permissions.
+end note
+
+AuthService "uses" --> AuthDatabase
+SpellService "uses" --> SpellsDatabase
+SpellbookService "uses" --> SpellsDatabase
+
+User "registers with" --> AuthService : creates
+User "owns" --> Spellbook : 1..*
+Spellbook "contains" --> Spell : *
+Spell "has" --> Component : *
+Spell "belongs to" --> Tradition : *
+
+AuthController "uses" --> AuthService
+SpellController "uses" --> SpellService
+SpellbookController "uses" --> SpellbookService
+
+SpellList "displays" --> Spell
+SpellDetail "shows" --> Spell
+SpellForm "creates/updates" --> Spell
+AuthForm "authenticates with" --> AuthService
+
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam linetype ortho
+
+node "Client" as ClientNode {
+    artifact "React SPA" as ReactSPA <<component>>
+}
+
+node "Docker Host" as DockerHost {
+
+    node "walpapur-gateway" as ContGateway {
+        component "Express/NGINX Gateway" as CompGateway
+        artifact "openapi.js" as SwaggerSpec
+        CompGateway ..> SwaggerSpec : reads
+    }
+
+    node "walpapur-auth" as ContAuth {
+        component "Auth Microservice" as CompAuth
+    }
+
+    node "walpapur-spells" as ContSpells {
+        component "Spell Microservice" as CompSpells
+    }
+
+    node "walpapur-monsters" as ContMonsters {
+        component "Monster Microservice" as CompMonsters
+    }
+
+    node "walpapur-dice" as ContDice {
+        component "Dice Socket Server" as CompDice
+    }
+
+    node "walpapur-db" as ContDB {
+        database "MySQL Engine" as Engine {
+            folder "auth_db"
+            folder "spells_db"
+            folder "bestiary_db"
+        }
+    }
+}
+
+'' Мережеві та протокольні зв'язки (Взаємодія)
+ClientNode --> ContGateway 
+ClientNode ----> ContDice 
+ClientNode ..> ContGateway
+
+ContGateway ----> ContAuth 
+ContGateway ----> ContSpells 
+ContGateway -right-> ContMonsters 
+
+ContAuth ----> ContDB 
+ContSpells ----> ContDB 
+ContMonsters ----> ContDB
+
+@enduml

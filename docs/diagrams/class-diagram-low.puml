@@ -1,0 +1,97 @@
+@startuml
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FEFEFE
+skinparam class {
+}
+
+package "API & Middleware Layer" {
+    class AuthMiddleware {
+        +verifyToken(req, res, next): void
+    }
+    class AuthController {
+        +register(req, res): void
+        +login(req, res): void
+    }
+    class SpellController {
+        +getAll(req, res): void
+        +create(req, res): void
+    }
+    class MonsterController {
+        +getAll(req, res): void
+        +create(req, res): void
+    }
+    class DiceSocketServer {
+        +handleConnection(socket): void
+        +onRollDice(socket, data): void
+    }
+}
+
+package "Domain Models & Services"{
+    class User {
+        +id: int
+        +username: string
+        +email: string
+        +password_hash: string
+        +register(): User
+        +login(): JWT
+    }
+    class Spell {
+        +id: int
+        +name: string
+        +level: int
+        +school: string
+        +components: JSON
+        +description: text
+        +create(): Spell
+        +findAll(): Spell[]
+    }
+    class Monster {
+        +id: int
+        +name: string
+        +ac: int
+        +hp: int
+        +abilities: JSON
+        +actions: text
+        +create(): Monster
+        +findAll(): Monster[]
+    }
+    class DiceRoller {
+        +executeRoll(formula: string): int
+    }
+}
+
+package "Frontend Components"{
+    class AuthForm {
+        +render(): JSX
+        +handleLogin(): void
+    }
+    class SpellList {
+        +render(): JSX
+    }
+    class MonsterList {
+        +render(): JSX
+    }
+}
+
+package "Database Layer"{
+    class Database {
+        +query(sql, params): Promise
+    }
+}
+
+'' Залежності та зв'язки
+AuthController ..> User : manages
+SpellController ..> Spell : manages
+MonsterController ..> Monster : manages
+DiceSocketServer ..> DiceRoller : uses
+
+AuthMiddleware ..> AuthController : protects
+AuthForm ..> AuthController : requests
+SpellList ..> SpellController : fetches
+MonsterList ..> MonsterController : fetches
+
+User ..> Database : reads/writes
+Spell ..> Database : reads/writes
+Monster ..> Database : reads/writes
+@enduml

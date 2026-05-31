@@ -1,0 +1,82 @@
+@startuml Component Diagram - Walpapur Tabletop
+!theme plain
+skinparam componentStyle uml2
+skinparam backgroundColor #FEFEFE
+skinparam component {
+    BackgroundColor #E1F5FE
+    BorderColor #01579B
+    FontColor #000000
+}
+skinparam interface {
+    BackgroundColor #FFF3E0
+    BorderColor #E65100
+}
+skinparam database {
+    BackgroundColor #F3E5F5
+    BorderColor #4A148C
+}
+
+title Component Diagram - Walpapur Tabletop Microservices Architecture
+
+actor User
+
+package "Client Layer" #E8F4F8 {
+    component "Browser" as Browser
+}
+
+package "Presentation Layer" #D4E6F1 {
+    component "Web Service\n(React SPA + NGINX)\nPort: 80/443" as WebService
+}
+
+package "API Gateway Layer" #AED6F1 {
+    component "API Gateway\n(Express + NGINX)\nPort: 3000\n- JWT Verification\n- Rate Limiting\n- CORS" as Gateway
+}
+
+package "Business Logic Layer" #85C1E2 {
+    component "Auth Service\n(Node.js Express)\nPort: 3001\n- User Registration\n- Login\n- JWT Generation" as AuthService
+    
+    component "Spell Service\n(Node.js Express)\nPort: 3002\n- Spell Management\n- Spellbooks\n- Search & Filter" as SpellService
+}
+
+package "Data Layer" #5DADE2 {
+    database "MySQL Database\nPort: 3306" as Database {
+        component "auth_db\n(Users)" as AuthDB
+        component "spells_db\n(Spells, Spellbooks)" as SpellsDB
+    }
+}
+
+User --> Browser : Uses
+Browser --> WebService : HTTP/HTTPS\n(REST API Calls)
+WebService --> Gateway : HTTP\n/api/auth/*\n/api/spells/*
+
+Gateway --> AuthService : HTTP\n(Internal)
+Gateway --> SpellService : HTTP\n(Internal)
+
+AuthService --> AuthDB : SQL Queries\n(User Data)
+SpellService --> SpellsDB : SQL Queries\n(Spell Data)
+
+note right of Gateway
+    Central routing point for all backend services
+    Handles authentication token verification
+    Provides API documentation (Swagger/OpenAPI)
+end note
+
+note right of AuthService
+    Stateless service for user management
+    Uses bcrypt for password hashing
+    Generates JWT tokens for authentication
+end note
+
+note right of SpellService
+    Manages spell database and user spellbooks
+    Provides search and filtering capabilities
+    Supports public and private spellbooks
+end note
+
+legend right
+    | |<#AED6F1> API Gateway (Central Hub) |
+    | |<#85C1E2> Business Logic Services |
+    | |<#5DADE2> Persistent Data |
+end legend
+
+@enduml

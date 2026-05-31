@@ -1,0 +1,75 @@
+@startuml Sequence Diagram - User Authentication and Spell Retrieval
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam FontColor #000000
+
+title Sequence Diagram - User Authentication and Spell Retrieval Flow
+
+actor User
+participant "Browser\n(React App)" as Browser
+participant "Web Service\n(NGINX)" as WebService
+participant "API Gateway\n(Express)" as Gateway
+participant "Auth Service\n(Express)" as AuthService
+participant "Spell Service\n(Express)" as SpellService
+database "MySQL\nDatabases" as Database
+
+== User Registration ==
+User -> Browser: 1. Enter credentials\n(username, email, password)
+Browser -> WebService: 2. POST /api/auth/register\n(form data)
+WebService -> Gateway: 3. Forward to API Gateway
+Gateway -> AuthService: 4. POST /api/auth/register
+AuthService -> Database: 5. Query: Check if user exists\nSELECT * FROM users\nWHERE email=? OR username=?
+Database --> AuthService: 6. No existing user (success)
+AuthService -> AuthService: 7. Hash password\n(bcrypt.hash)
+AuthService -> Database: 8. INSERT INTO users\n(username, email, password_hash)
+Database --> AuthService: 9. User created\n(insertId returned)
+AuthService --> Gateway: 10. 201 Created\n{userId: 123}
+Gateway --> WebService: 11. Response forwarded
+WebService --> Browser: 12. Success response
+Browser -> User: 13. Show success message
+
+== User Login ==
+User -> Browser: 14. Enter login credentials\n(email, password)
+Browser -> WebService: 15. POST /api/auth/login\n(email, password)
+WebService -> Gateway: 16. Forward request
+Gateway -> AuthService: 17. POST /api/auth/login
+AuthService -> Database: 18. SELECT * FROM users\nWHERE email=?
+Database --> AuthService: 19. User found with password_hash
+AuthService -> AuthService: 20. Verify password\n(bcrypt.compare)
+AuthService -> AuthService: 21. Generate JWT Token\n(jwt.sign)
+AuthService --> Gateway: 22. 200 OK\n{token: "eyJ..."}
+Gateway --> WebService: 23. Response with token
+WebService --> Browser: 24. Send token to frontend
+Browser -> Browser: 25. Store token\n(localStorage/sessionStorage)
+
+== Fetch Spells (with optional auth) ==
+User -> Browser: 26. Navigate to /spells
+Browser -> Browser: 27. Read token from storage
+Browser -> WebService: 28. GET /api/spells\n(Authorization header with token)
+WebService -> Gateway: 29. Forward request with token
+Gateway -> Gateway: 30. Verify JWT Token\n(optional auth middleware)
+Gateway -> SpellService: 31. GET /api/spells\n(with user context if authenticated)
+SpellService -> Database: 32. SELECT * FROM spells\n(+ JOIN with user_id if needed)
+Database --> SpellService: 33. Return spell list\n[{id, name, traditions...}]
+SpellService --> Gateway: 34. 200 OK\n{spells: [...]}
+Gateway --> WebService: 35. Response forwarded
+WebService --> Browser: 36. Send spell data
+Browser -> Browser: 37. Parse JSON response\n(setSpells state)
+Browser -> User: 38. Display SpellList component\nwith all spells
+
+== Create New Spell (Authenticated) ==
+User -> Browser: 39. Submit new spell form
+Browser -> Browser: 40. Read JWT token
+Browser -> WebService: 41. POST /api/spells\n(spell data + token)
+WebService -> Gateway: 42. Forward with Authorization header
+Gateway -> Gateway: 43. Verify JWT Token\n(required auth middleware)
+Gateway -> SpellService: 44. POST /api/spells\n(spell data + user_id from token)
+SpellService -> Database: 45. INSERT INTO spells\n(name, traditions, components...)\nINSERT INTO spellbooks\n(user_id, spell_id)
+Database --> SpellService: 46. Spell created\n(insertId)
+SpellService --> Gateway: 47. 201 Created\n{spell: {...}}
+Gateway --> WebService: 48. Response forwarded
+WebService --> Browser: 49. Success response
+Browser -> Browser: 50. Update spells state\n(addSpell)
+Browser -> User: 51. Show new spell in list
+
+@enduml

@@ -1,0 +1,26 @@
+@startuml Sequence Diagram - Real-time Dice Roll
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam FontColor #000000
+
+actor "Користувач" as Player1
+participant "Browser\n(host)" as Browser1
+participant "Dice Service\n(Socket.io Server)" as DiceService
+participant "Browser\n(Інші гравці)" as OtherBrowsers
+actor "Інші учасники" as Others
+
+== Кидок кубика==
+Player1 -> Browser1: 1. Натискає на кнопку кубика "d20"
+Browser1 -> DiceService: 2. WebSocket emit("roll_dice", { formula: "1d20" })
+
+note over DiceService
+  3. Сервер обробляє формулу
+end note
+
+DiceService -> DiceService: 4. Формування пакету події
+
+DiceService -> Browser1: 5. WebSocket emit("dice_rolled")
+DiceService -> OtherBrowsers: 6. WebSocket broadcast.emit("dice_rolled")
+Browser1 -> Player1: 7. Відображення результату
+OtherBrowsers -> Others: 8. Відображення результату
+@enduml

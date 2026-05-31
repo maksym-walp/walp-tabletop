@@ -1,0 +1,28 @@
+@startuml Sequence Diagram - Content Creation
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam FontColor #000000
+
+actor "Користувач (GM)" as User
+participant "Browser" as Browser
+participant "API Gateway" as Gateway
+participant "Monster Service" as Service
+database "MySQL\n(bestiary_db)" as Database
+
+== Створення картки монстра ==
+User -> Browser: 1. Заповнює та відправляє форму монстра
+Browser -> Browser: 2. Зчитує збережений JWT токен
+Browser -> Gateway: 3. POST /api/monsters
+
+Gateway -> Gateway: 4. Валідація JWT токена
+
+Gateway -> Service: 5. POST /api/monsters
+Service -> Database: 6. INSERT INTO monsters
+Database --> Service: 7. Успішно записано
+
+Service --> Gateway: 8. 201 Created
+Gateway --> Browser: 9. Forward 201 Created
+
+Browser -> Browser: 10. Оновлення стану React компонента
+Browser -> User: 11. Відображення нового монстра в Бестіарії
+@enduml

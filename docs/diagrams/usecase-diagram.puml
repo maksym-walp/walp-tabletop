@@ -1,0 +1,36 @@
+@startuml usecase
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Гість (Guest)" as guest
+actor "Гравець (Player)" as player
+actor "Майстер гри (GM)" as gm
+
+player --|> guest
+gm --|> player
+
+rectangle "TTRPG Platform (Existing System Boundary)" {
+    usecase "Реєстрація акаунта" as UC_register
+    usecase "Автентифікація (Вхід)" as UC_login
+    usecase "Перегляд каталогу заклинань" as UC_view_spells
+    usecase "Пошук та фільтрація заклинань" as UC_search_spells
+    usecase "Створення нового заклинання" as UC_create_spell
+    usecase "Редагування заклинання" as UC_edit_spell
+    usecase "Видалення заклинання" as UC_delete_spell
+    usecase "Валідація JWT-сесії" as UC_validate_jwt
+}
+
+guest --> UC_register
+guest --> UC_login
+
+player --> UC_view_spells
+player --> UC_search_spells
+
+gm --> UC_create_spell
+gm --> UC_edit_spell
+gm --> UC_delete_spell
+
+UC_login ..> UC_validate_jwt : <<include>>
+UC_view_spells ..> UC_validate_jwt : <<include>>
+UC_create_spell ..> UC_validate_jwt : <<include>>
+@endum
