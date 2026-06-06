@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond&display=swap");
 
 :root {
   --parchment-color: #f4e4bc;
@@ -9,7 +9,7 @@
 }
 
 .App {
-  font-family: 'EB Garamond', serif;
+  font-family: "EB Garamond", serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -19,19 +19,19 @@
 }
 
 .App::before {
-  content: '';
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('./assets/background.jpg') no-repeat center center fixed;
+  background: url("./assets/background.jpg") no-repeat center center fixed;
   background-size: cover;
   z-index: -2;
 }
 
 .App::after {
-  content: '';
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
@@ -69,20 +69,31 @@ main {
   border-radius: 50%;
   background-color: var(--ink-color);
   color: var(--gold-color);
-  text-align: center;
-  line-height: 56px;
-  font-size: 28px;
-  text-decoration: none;
   box-shadow: 0 4px 12px var(--shadow-color);
   transition: all 0.3s ease;
   z-index: 100;
   -webkit-tap-highlight-color: transparent;
   border: 2px solid var(--gold-color);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.add-spell-button svg {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.3s ease;
 }
 
 .add-spell-button:hover,
 .add-spell-button:active {
   background-color: var(--accent-color);
+}
+
+.add-spell-button:hover svg,
+.add-spell-button:active svg {
   transform: scale(1.1) rotate(180deg);
 }
 
@@ -97,8 +108,10 @@ main {
     right: 30px;
     width: 64px;
     height: 64px;
-    line-height: 64px;
-    font-size: 36px;
+  }
+  .add-spell-button svg {
+    width: 28px;
+    height: 28px;
   }
 }
 
