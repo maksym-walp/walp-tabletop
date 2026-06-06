@@ -63,7 +63,6 @@
   font-family: "Cinzel", serif;
   display: block;
   margin-bottom: 8px;
-  color: var(--gold-color);
   text-transform: uppercase;
   font-size: 0.9em;
   letter-spacing: 1px;
@@ -123,7 +122,6 @@
 .tradition-checkbox input:checked + span,
 .flag-checkbox input:checked + span {
   color: var(--accent-color);
-  font-weight: bold;
 }
 
 .tradition-checkbox:has(input:checked),
