@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import spellConfig from '../../config/spellConfig.json';
-import './SpellDetail.css';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import spellConfig from "../../config/spellConfig.json";
+import "./SpellDetail.css";
 
 const SpellDetail = () => {
   const [spell, setSpell] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState(null);
   const { id } = useParams();
-  const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "/api";
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/spells/${id}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setSpell(data);
         setSelectedLevel(data.level);
       })
-      .catch(err => console.error("Failed to fetch spell details:", err));
+      .catch((err) => console.error("Failed to fetch spell details:", err));
   }, [id, API_BASE_URL]);
 
   if (!spell) {
@@ -24,18 +24,21 @@ const SpellDetail = () => {
   }
 
   const getDurationText = (duration) => {
-    if (duration.unit === 'moment') return 'Мить';
-    const unit = spellConfig.durationUnits.find(u => u.value === duration.unit);
-    if (!unit) return 'Невідомо';
-    
+    if (duration.unit === "moment") return "Мить";
+    const unit = spellConfig.durationUnits.find(
+      (u) => u.value === duration.unit,
+    );
+    if (!unit) return "Невідомо";
+
     if (!unit.requiresValue) return unit.label;
-    if (duration.unit === 'custom') return `${duration.value} ${duration.customUnit}`;
+    if (duration.unit === "custom")
+      return `${duration.value} ${duration.customUnit}`;
     return `${duration.value} ${unit.label.toLowerCase()}`;
   };
 
   const availableLevels = [spell.level];
   if (spell.hasHigherLevels && spell.higherLevels) {
-    Object.keys(spell.higherLevels).forEach(level => {
+    Object.keys(spell.higherLevels).forEach((level) => {
       availableLevels.push(parseInt(level));
     });
   }
@@ -45,14 +48,16 @@ const SpellDetail = () => {
     if (selectedLevel === spell.level) {
       return {
         narrative: spell.narrativeDescription,
-        mechanical: spell.mechanicalDescription
+        mechanical: spell.mechanicalDescription,
       };
     }
     const higherLevel = spell.higherLevels && spell.higherLevels[selectedLevel];
-    return higherLevel || {
-      narrative: 'Немає опису для цього рівня',
-      mechanical: 'Немає опису для цього рівня'
-    };
+    return (
+      higherLevel || {
+        narrative: "Немає опису для цього рівня",
+        mechanical: "Немає опису для цього рівня",
+      }
+    );
   };
 
   const description = getCurrentDescription();
@@ -61,17 +66,28 @@ const SpellDetail = () => {
     <div className="spell-detail-container">
       <h1>{spell.name}</h1>
       <div className="spell-meta">
-        <span className="spell-level"><strong>Рівень:</strong> {spell.level}</span>
+        <span className="spell-level">
+          <strong>Рівень:</strong> {spell.level}
+        </span>
       </div>
       <div className="spell-properties">
-        <p><strong>💠 Кількість дій:</strong> {spell.actions}</p>
-        <p><strong>🚶 Відстань:</strong> {spell.range} {spellConfig.range.units}</p>
-        <p><strong>⌛ Тривалість:</strong> {getDurationText(spell.duration)}</p>
-        <p><strong>Компоненти:</strong> {(spell.components || []).join(', ') || 'Не вказано'}</p>
+        <p>
+          <strong>💠 Кількість дій:</strong> {spell.actions}
+        </p>
+        <p>
+          <strong>🚶 Відстань:</strong> {spell.range} {spellConfig.range.units}
+        </p>
+        <p>
+          <strong>⌛ Тривалість:</strong> {getDurationText(spell.duration)}
+        </p>
+        <p>
+          <strong>Компоненти:</strong>{" "}
+          {(spell.components || []).join(", ") || "Не вказано"}
+        </p>
         <div className="spell-traditions">
           <strong>Арканічні традиції:</strong>
           <span className="traditions-list">
-            {(spell.traditions || []).join(', ') || 'Не вказано'}
+            {(spell.traditions || []).join(", ") || "Не вказано"}
           </span>
           <Link to="/traditions" className="traditions-link">
             ?
@@ -79,14 +95,15 @@ const SpellDetail = () => {
         </div>
         <div className="spell-flags">
           <strong>Особливості:</strong>
-          {spellConfig.flags.map(flag => (
-            spell[flag.name] && (
-              <span key={flag.name} className="flag">
-                {flag.label}
-              </span>
-            )
-          ))}
-          {!spellConfig.flags.some(flag => spell[flag.name]) && (
+          {spellConfig.flags.map(
+            (flag) =>
+              spell[flag.name] && (
+                <span key={flag.name} className="flag">
+                  {flag.label}
+                </span>
+              ),
+          )}
+          {!spellConfig.flags.some((flag) => spell[flag.name]) && (
             <span>Без особливостей</span>
           )}
         </div>
@@ -94,10 +111,10 @@ const SpellDetail = () => {
 
       {availableLevels.length > 1 && (
         <div className="level-tabs">
-          {availableLevels.map(level => (
+          {availableLevels.map((level) => (
             <button
               key={level}
-              className={`level-tab ${selectedLevel === level ? 'active' : ''}`}
+              className={`level-tab ${selectedLevel === level ? "active" : ""}`}
               onClick={() => setSelectedLevel(level)}
             >
               {level} рівень
@@ -111,7 +128,7 @@ const SpellDetail = () => {
           <h3>Наративний опис</h3>
           <p>{description.narrative}</p>
         </div>
-        
+
         <div className="description-section">
           <h3>Механічний опис</h3>
           <p>{description.mechanical}</p>

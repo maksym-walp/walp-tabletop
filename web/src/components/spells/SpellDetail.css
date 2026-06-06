@@ -8,16 +8,21 @@
   box-shadow: 0 8px 24px var(--shadow-color);
   position: relative;
   overflow: hidden;
+
+  h1 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
 }
 
 .spell-detail-container::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('../../assets/parchment-texture.jpeg');
+  background: url("../../assets/parchment-texture.jpeg");
   opacity: 0.1;
   pointer-events: none;
 }
@@ -28,7 +33,7 @@
 }
 
 .spell-detail-container h1 {
-  font-family: 'Cinzel', serif;
+  font-family: "Cinzel", serif;
   color: var(--accent-color);
   text-align: center;
   margin-bottom: 20px;
@@ -177,7 +182,7 @@
   min-width: 100px;
   text-align: center;
   color: var(--ink-color);
-  font-family: 'Cinzel', serif;
+  font-family: "Cinzel", serif;
 }
 
 .level-tab:hover {
@@ -206,7 +211,7 @@
 .description-section h3 {
   margin-top: 0;
   color: var(--ink-color);
-  font-family: 'Cinzel', serif;
+  font-family: "Cinzel", serif;
   border-bottom: 2px solid var(--gold-color);
   padding-bottom: 10px;
   margin-bottom: 15px;
