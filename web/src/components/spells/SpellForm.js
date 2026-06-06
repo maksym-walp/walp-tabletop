@@ -279,7 +279,7 @@ const SpellForm = ({ onSpellAdded }) => {
             type="text"
             value={component}
             onChange={(e) => handleComponentChange(index, e.target.value)}
-            placeholder="Enter component description"
+            placeholder="Введіть опис компоненту"
           />
           <button
             type="button"
@@ -299,7 +299,7 @@ const SpellForm = ({ onSpellAdded }) => {
         name="narrativeDescription"
         value={spell.narrativeDescription}
         onChange={handleInputChange}
-        placeholder="Describe how the spell looks and feels when cast..."
+        placeholder="Опишіть як заклинання виглядає та відчувається коли накладається..."
         required
       />
 
@@ -308,7 +308,7 @@ const SpellForm = ({ onSpellAdded }) => {
         name="mechanicalDescription"
         value={spell.mechanicalDescription}
         onChange={handleInputChange}
-        placeholder="Describe the mechanical effects of the spell (damage, conditions, etc.)..."
+        placeholder="Опишіть механічні наслідки заклинання (ушкодження, умови, ітд.)..."
         required
       />
 
@@ -352,7 +352,7 @@ const SpellForm = ({ onSpellAdded }) => {
                 onChange={(e) =>
                   handleHigherLevelChange(level, "narrative", e.target.value)
                 }
-                placeholder="Describe how the spell changes visually at this level..."
+                placeholder="Опишіть як заклинання змінюється візуально на цьому рівні..."
               />
 
               <label>Механічний опис:</label>
@@ -361,7 +361,7 @@ const SpellForm = ({ onSpellAdded }) => {
                 onChange={(e) =>
                   handleHigherLevelChange(level, "mechanical", e.target.value)
                 }
-                placeholder="Describe the mechanical changes at this level..."
+                placeholder="Опишіть як заклинання змінюється механічно на цьому рівні..."
               />
               <button
                 type="button"
