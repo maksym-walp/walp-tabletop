@@ -83,16 +83,16 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v2
         if: always()
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: "trivy-results.sarif"
 
   # Перевірка code style
   check-code-style:
@@ -103,7 +103,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
 
       # Перевірка всіх package.json файлів
       - name: Check for prettier/eslint configs
@@ -156,32 +156,29 @@ jobs:
             const additions = files.reduce((sum, file) => sum + file.additions, 0);
             const deletions = files.reduce((sum, file) => sum + file.deletions, 0);
 
-            const comment = `## 📊 PR Analysis
+            const servicesText = changedServices.size > 0
+              ? Array.from(changedServices).map(s => '- ' + s).join('\n')
+              : '_No service changes detected_';
 
-### Changed Services
-${changedServices.size > 0 ?
-  Array.from(changedServices).map(s => `- ${s}`).join('\n') :
-  '_No service changes detected_'}
+            const deploymentText = changedServices.size > 0
+              ? '⚠️ This PR will trigger rebuild of: ' + Array.from(changedServices).join(', ')
+              : '✅ No service deployments required';
 
-### Code Changes
-- **Files changed**: ${files.length}
-- **Lines added**: +${additions}
-- **Lines removed**: -${deletions}
-- **Net change**: ${additions - deletions > 0 ? '+' : ''}${additions - deletions}
-
-### Checklist
-- [ ] Tests added/updated
-- [ ] Documentation updated
-- [ ] CHANGELOG updated (if needed)
-- [ ] Environment variables documented (if added)
-
-### Deployment Impact
-${changedServices.size > 0 ?
-  `⚠️ This PR will trigger rebuild of: ${Array.from(changedServices).join(', ')}` :
-  '✅ No service deployments required'}
-
----
-_Автоматично згенеровано GitHub Actions_`;
+            const comment = '## 📊 PR Analysis\n\n' +
+              '### Changed Services\n' + servicesText + '\n\n' +
+              '### Code Changes\n' +
+              '- **Files changed**: ' + files.length + '\n' +
+              '- **Lines added**: +' + additions + '\n' +
+              '- **Lines removed**: -' + deletions + '\n' +
+              '- **Net change**: ' + (additions - deletions > 0 ? '+' : '') + (additions - deletions) + '\n\n' +
+              '### Checklist\n' +
+              '- [ ] Tests added/updated\n' +
+              '- [ ] Documentation updated\n' +
+              '- [ ] CHANGELOG updated (if needed)\n' +
+              '- [ ] Environment variables documented (if added)\n\n' +
+              '### Deployment Impact\n' + deploymentText + '\n\n' +
+              '---\n' +
+              '_Автоматично згенеровано GitHub Actions_';
 
             github.rest.issues.createComment({
               owner: context.repo.owner,

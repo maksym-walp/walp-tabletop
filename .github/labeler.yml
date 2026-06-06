@@ -1,37 +1,45 @@
-# Автоматичне додавання labels до PR на основі змінених файлів
+"service: auth":
+  - any:
+      - "services/auth-service/**/*"
 
-'service: auth':
-  - services/auth-service/**/*
+"service: spell":
+  - any:
+      - "services/spell-service/**/*"
 
-'service: spell':
-  - services/spell-service/**/*
+"service: gateway":
+  - any:
+      - "gateway/**/*"
 
-'service: gateway':
-  - gateway/**/*
+"app: web":
+  - any:
+      - "web/**/*"
 
-'app: web':
-  - web/**/*
+"infrastructure":
+  - any:
+      - "docker-compose*.yml"
+      - ".github/workflows/**/*"
+      - "infrastructure/**/*"
 
-'infrastructure':
-  - docker-compose*.yml
-  - .github/workflows/**/*
-  - infrastructure/**/*
+"documentation":
+  - any:
+      - "**/*.md"
+      - "docs/**/*"
 
-'documentation':
-  - '**/*.md'
-  - docs/**/*
+"dependencies":
+  - any:
+      - "**/package.json"
+      - "**/package-lock.json"
 
-'dependencies':
-  - '**/package.json'
-  - '**/package-lock.json'
+"security":
+  - any:
+      - "**/.env.example"
+      - "**/secrets/**/*"
 
-'security':
-  - '**/.env.example'
-  - '**/secrets/**/*
+"database":
+  - any:
+      - "infrastructure/db/**/*"
+      - "**/migrations/**/*"
 
-'database':
-  - infrastructure/db/**/*
-  - '**/migrations/**/*'
-
-'ci/cd':
-  - .github/workflows/**/*
+"ci/cd":
+  - any:
+      - ".github/workflows/**/*"
