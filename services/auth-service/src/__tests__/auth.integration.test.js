@@ -1,10 +1,10 @@
 const request = require("supertest");
 const express = require("express");
-const authRoutes = require("../../routes/auth");
+const authRoutes = require("../routes/auth");
 
 // Mock database pool
 const mockPool = {
-  query: jest.fn(),
+  query: jest.fn().mockResolvedValue([[], {}]), // Returns [rows, fields] like mysql2
   getConnection: jest.fn(),
 };
 
