@@ -13,13 +13,13 @@
 }
 
 .spell-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('../../assets/parchment-texture.jpeg');
+  background: url("../../assets/parchment-texture.jpeg");
   opacity: 0.1;
   pointer-events: none;
   z-index: -1;
@@ -34,7 +34,7 @@
 .spell-card h3 {
   margin: 0 0 10px 0;
   color: var(--accent-color);
-  font-family: 'Cinzel', serif;
+  font-family: "Cinzel", serif;
   font-size: 1.25em;
   text-align: center;
   border-bottom: 1px solid var(--gold-color);
@@ -120,13 +120,17 @@
 }
 
 .spell-description::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   right: 0;
   width: 70%;
   height: 1.5em;
-  background: linear-gradient(to right, transparent, var(--parchment-color) 70%);
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--parchment-color) 70%
+  );
 }
 
 .higher-levels-indicator {
