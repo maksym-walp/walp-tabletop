@@ -1,23 +1,23 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const mysql = require('mysql2/promise');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const mysql = require("mysql2/promise");
 
 const app = express();
 const port = process.env.PORT || 3002;
-const host = '0.0.0.0';
+const host = "0.0.0.0";
 
 app.use(cors());
 app.use(express.json());
 
 // Database pool для spells_db
 const pool = mysql.createPool({
-  host: process.env.SPELLS_DB_HOST || 'localhost',
+  host: process.env.SPELLS_DB_HOST || "localhost",
   port: parseInt(process.env.SPELLS_DB_PORT) || 3306,
   user: process.env.SPELLS_DB_USER,
   password: process.env.SPELLS_DB_PASSWORD,
-  database: process.env.SPELLS_DB_NAME || 'spells_db',
-  charset: 'utf8mb4',
+  database: process.env.SPELLS_DB_NAME || "spells_db",
+  charset: "utf8mb4",
 
   waitForConnections: true,
   connectionLimit: 10,
@@ -28,20 +28,20 @@ const pool = mysql.createPool({
   acquireTimeout: 10000,
   maxIdle: 5,
   enableKeepAlive: true,
-  keepAliveInitialDelay: 10000
+  keepAliveInitialDelay: 10000,
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'spell-service' });
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", service: "spell-service" });
 });
 
 const processSpellRow = (row) => {
-  const traditions = row.traditions ? row.traditions.split(',') : [];
+  const traditions = row.traditions ? row.traditions.split(",") : [];
 
   // Парсимо JSON поля якщо вони є рядками
   let components = row.components || [];
-  if (typeof components === 'string') {
+  if (typeof components === "string") {
     try {
       components = JSON.parse(components);
     } catch (e) {
@@ -50,7 +50,7 @@ const processSpellRow = (row) => {
   }
 
   let higherLevels = row.higher_levels || {};
-  if (typeof higherLevels === 'string') {
+  if (typeof higherLevels === "string") {
     try {
       higherLevels = JSON.parse(higherLevels);
     } catch (e) {
@@ -75,15 +75,15 @@ const processSpellRow = (row) => {
     duration: {
       value: row.duration_value,
       unit: row.duration_unit,
-      customUnit: row.duration_custom_unit
-    }
+      customUnit: row.duration_custom_unit,
+    },
   };
 
   return spell;
 };
 
 // API routes
-app.get('/api/spells', async (req, res) => {
+app.get("/api/spells", async (req, res) => {
   try {
     // Цей складний запит робить одну потужну річ:
     // 1. s.* - Обирає всі поля з таблиці `spells`
@@ -100,22 +100,21 @@ app.get('/api/spells', async (req, res) => {
       LEFT JOIN traditions AS t ON st.tradition_id = t.id
       GROUP BY s.id;
     `;
-    
+
     const [rows] = await pool.query(sqlQuery);
-    
+
     // Обробляємо кожен рядок, щоб привести його до формату,
     // який очікує фронтенд (напр. App.js та SpellList.js)
     const spells = rows.map(processSpellRow);
 
     res.json(spells);
-
   } catch (err) {
     console.error(err);
-    res.status(500).send('Помилка читання з бази даних');
+    res.status(500).send("Помилка читання з бази даних");
   }
 });
 
-app.get('/api/spells/:id', async (req, res) => {
+app.get("/api/spells/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -140,33 +139,62 @@ app.get('/api/spells/:id', async (req, res) => {
     console.log(`[DEBUG] Raw row traditions:`, rows[0]?.traditions);
 
     if (rows.length === 0) {
-      return res.status(404).send('Заклинання не знайдено');
+      return res.status(404).send("Заклинання не знайдено");
     }
 
     // Обробляємо один рядок
     const spell = processSpellRow(rows[0]);
     console.log(`[DEBUG] Processed traditions:`, spell.traditions);
     res.json(spell);
-
   } catch (err) {
     console.error(err);
-    res.status(500).send('Помилка читання з бази даних');
+    res.status(500).send("Помилка читання з бази даних");
   }
 });
 
-app.post('/api/spells', async (req, res) => {
+app.delete("/api/spells/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Запит такий самий, але з `WHERE s.id = ?`
+    // Використання `?` - це "prepared statement" ("підготовлений запит").
+    // Це **критично важливо** для безпеки, щоб запобігти SQL-ін'єкціям.
+    const sqlQuery = `DELETE FROM spells WHERE id = ?;`;
+
+    const [result] = await pool.query(sqlQuery, [id]);
+
+    // Debug logging
+    console.log(`[DEBUG] Delete Spell ID: ${id}`);
+    console.log(`[DEBUG] Affected rows:`, result.affectedRows);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Заклинання не знайдено");
+    }
+
+    // Обробляємо один рядок
+    res.json({ message: "Заклинання успішно видалено", id: id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Помилка видалення з бази даних");
+  }
+});
+
+app.post("/api/spells", async (req, res) => {
   let connection;
 
   try {
     const spellData = req.body;
 
     // Debug: що приходить з форми
-    console.log('[DEBUG] Received spell data:', JSON.stringify(spellData, null, 2));
-    console.log('[DEBUG] Traditions received:', spellData.traditions);
+    console.log(
+      "[DEBUG] Received spell data:",
+      JSON.stringify(spellData, null, 2),
+    );
+    console.log("[DEBUG] Traditions received:", spellData.traditions);
 
     // 1. Одне з'єднання з пулу
     connection = await pool.getConnection();
-    
+
     // 2. Початок транзакції
     await connection.beginTransaction();
 
@@ -184,26 +212,25 @@ app.post('/api/spells', async (req, res) => {
       narrative_description: spellData.narrativeDescription,
       mechanical_description: spellData.mechanicalDescription,
       has_higher_levels: spellData.hasHigherLevels,
-      
+
       // Перетворення об'єктів/масивів у JSON-рядки
       components: JSON.stringify(spellData.components || []),
-      higher_levels: JSON.stringify(spellData.higherLevels || {})
+      higher_levels: JSON.stringify(spellData.higherLevels || {}),
     };
 
     // Вставка в таблицю spells
-    const [insertResult] = await connection.query(
-      'INSERT INTO spells SET ?', 
-      [spellToInsert]
-    );
-    
+    const [insertResult] = await connection.query("INSERT INTO spells SET ?", [
+      spellToInsert,
+    ]);
+
     const newSpellId = insertResult.insertId;
 
     // Вставка в таблицю spell_traditions
     if (spellData.traditions && spellData.traditions.length > 0) {
-      console.log('[DEBUG] Traditions to insert:', spellData.traditions);
+      console.log("[DEBUG] Traditions to insert:", spellData.traditions);
 
       // Створюємо плейсхолдери для кожної традиції: (?, ?, ?)
-      const placeholders = spellData.traditions.map(() => '?').join(', ');
+      const placeholders = spellData.traditions.map(() => "?").join(", ");
       const traditionsQuery = `
         INSERT INTO spell_traditions (spell_id, tradition_id)
         SELECT ?, t.id
@@ -212,10 +239,10 @@ app.post('/api/spells', async (req, res) => {
       `;
 
       const queryParams = [newSpellId, ...spellData.traditions];
-      console.log('[DEBUG] Query params:', queryParams);
+      console.log("[DEBUG] Query params:", queryParams);
 
       const [tradResult] = await connection.query(traditionsQuery, queryParams);
-      console.log('[DEBUG] Traditions insert result:', tradResult);
+      console.log("[DEBUG] Traditions insert result:", tradResult);
     }
 
     // Коміт змін
@@ -224,20 +251,105 @@ app.post('/api/spells', async (req, res) => {
     // Відправка відповіді з новим заклинанням
     const newSpell = {
       id: newSpellId,
-      ...spellData
+      ...spellData,
     };
     res.status(201).json(newSpell);
-
   } catch (err) {
     // Ролбек у випадку помилки
     if (connection) {
       await connection.rollback();
     }
-    console.error('Помилка транзакції:', err);
-    res.status(500).send('Помилка запису в базу даних');
-  
+    console.error("Помилка транзакції:", err);
+    res.status(500).send("Помилка запису в базу даних");
   } finally {
     // Звільнення з'єднання
+    if (connection) {
+      connection.release();
+    }
+  }
+});
+
+app.put("/api/spells/:id", async (req, res) => {
+  let connection;
+
+  try {
+    const { id } = req.params;
+    const spellData = req.body;
+
+    console.log(`[DEBUG] Updating spell ID: ${id}`);
+    console.log("[DEBUG] Received data:", JSON.stringify(spellData, null, 2));
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // 1. Підготовка даних для ОНОВЛЕННЯ
+    const spellToUpdate = {
+      name: spellData.name,
+      level: spellData.level,
+      actions: spellData.actions,
+      spell_range: spellData.range,
+      concentration: spellData.concentration,
+      ritual: spellData.ritual,
+      duration_value: spellData.duration.value,
+      duration_unit: spellData.duration.unit,
+      duration_custom_unit: spellData.duration.customUnit,
+      narrative_description: spellData.narrativeDescription,
+      mechanical_description: spellData.mechanicalDescription,
+      has_higher_levels: spellData.hasHigherLevels,
+
+      // Перетворення об'єктів/масивів у JSON-рядки
+      components: JSON.stringify(spellData.components || []),
+      higher_levels: JSON.stringify(spellData.higherLevels || {}),
+    };
+
+    // Оновлюємо основну таблицю spells за ID
+    const [updateResult] = await connection.query(
+      "UPDATE spells SET ? WHERE id = ?",
+      [spellToUpdate, id],
+    );
+
+    // Якщо запис не знайдено в базі
+    if (updateResult.affectedRows === 0) {
+      await connection.rollback();
+      return res.status(404).send("Заклинання не знайдено");
+    }
+
+    // 2. Оновлення традицій (Синхронізація)
+    // Спочатку видаляємо всі старі прив'язки традицій для цього заклинання
+    await connection.query("DELETE FROM spell_traditions WHERE spell_id = ?", [
+      id,
+    ]);
+
+    // Тепер вставляємо нові, якщо вони передані
+    if (spellData.traditions && spellData.traditions.length > 0) {
+      const placeholders = spellData.traditions.map(() => "?").join(", ");
+      const traditionsQuery = `
+        INSERT INTO spell_traditions (spell_id, tradition_id)
+        SELECT ?, t.id
+        FROM traditions AS t
+        WHERE t.name IN (${placeholders});
+      `;
+
+      const queryParams = [id, ...spellData.traditions];
+      await connection.query(traditionsQuery, queryParams);
+    }
+
+    // Коміт змін у БД
+    await connection.commit();
+
+    // Повертаємо оновлений об'єкт
+    const updatedSpell = {
+      id: Number(id),
+      ...spellData,
+    };
+    res.json(updatedSpell);
+  } catch (err) {
+    if (connection) {
+      await connection.rollback();
+    }
+    console.error("Помилка транзакції оновлення:", err);
+    res.status(500).send("Помилка оновлення даних у базі");
+  } finally {
     if (connection) {
       connection.release();
     }
@@ -258,14 +370,14 @@ app.post('/api/spells', async (req, res) => {
 // });
 
 // Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM received, closing database connections...');
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM received, closing database connections...");
   await pool.end();
   process.exit(0);
 });
 
-process.on('SIGINT', async () => {
-  console.log('SIGINT received, closing database connections...');
+process.on("SIGINT", async () => {
+  console.log("SIGINT received, closing database connections...");
   await pool.end();
   process.exit(0);
 });

@@ -31,6 +31,7 @@
 ## Middleware
 
 **verifyToken** - Перевірка JWT токену
+
 ```javascript
 req.headers.authorization = "Bearer <jwt>"
 → req.userId = decoded.userId

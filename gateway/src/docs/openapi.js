@@ -78,7 +78,7 @@ module.exports = {
       Spell: {
         type: "object",
         properties: {
-          id: { type: "integer", example: 42, readOnly: true },
+          id: { type: "integer", example: 42 },
           name: { type: "string", example: "Вогняний Шторм" },
           level: { type: "integer", example: 3 },
           actions: { type: "integer", example: 2 },
@@ -265,6 +265,73 @@ module.exports = {
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Spell" },
+              },
+            },
+          },
+          404: { description: "Spell not found" },
+          500: { description: "Server error" },
+        },
+      },
+      put: {
+        tags: ["Spells"],
+        summary: "Update an existing spell",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "integer" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/CreateSpellRequest" },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Spell updated",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Spell" },
+              },
+            },
+          },
+          404: { description: "Spell not found" },
+          500: { description: "Server error" },
+        },
+      },
+      delete: {
+        tags: ["Spells"],
+        summary: "Delete a spell by ID",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "integer" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Spell deleted",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Заклинання успішно видалено",
+                    },
+                    id: { type: "string", example: "42" },
+                  },
+                },
               },
             },
           },
